@@ -43,7 +43,7 @@ input[type='range']::-webkit-slider-thumb {
 }
 
 input[type='range']::-moz-range-thumb {
-	@apply h-5 w-5 cursor-none rounded-full border-2 border-white bg-primary shadow-md transition-transform hover:scale-110;
+	@apply h-5 w-5 cursor-pointer rounded-full border-2 border-white bg-primary shadow-md transition-transform hover:scale-110;
 }
 
 /* Animation Utilities */
