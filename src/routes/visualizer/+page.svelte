@@ -3,6 +3,7 @@
 	import { visualizer } from '$lib/stores/visualizer.svelte';
 	import VisualizerDisplay from '$lib/components/visualizer/VisualizerDisplay.svelte';
 	import { onMount } from 'svelte';
+	import { Play, Pause, RotateCcw, ChevronRight, ChevronLeft, Shuffle } from 'lucide-svelte';
 
 	// Bind controls to store
 	let selectedAlgo = $state(algorithms[0].id);
@@ -28,6 +29,13 @@
 	<div
 		class="bg-surface-100 border-surface-200 relative flex min-h-[400px] flex-col items-center justify-center overflow-hidden rounded-xl border p-8 shadow-inner lg:col-span-3"
 	>
+		<!-- Step Description Label -->
+		<div
+			class="bg-surface-50/90 text-surface-900 absolute top-4 left-1/2 z-10 -translate-x-1/2 rounded-full border border-gray-200 px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm transition-all"
+		>
+			{visualizer.currentStepLabel}
+		</div>
+
 		<VisualizerDisplay engine={visualizer} showStats={true} />
 	</div>
 
@@ -40,7 +48,7 @@
 			<select
 				id="algo-select"
 				bind:value={selectedAlgo}
-				onchange={() => visualizer.resetPlayback()}
+				onchange={() => visualizer.reset()}
 				class="border-surface-200 bg-surface-50 focus:border-primary focus:ring-primary/20 rounded-md border p-2 transition-shadow focus:ring-2 focus:outline-none"
 			>
 				{#each algorithms as algo (algo.id)}
@@ -81,42 +89,71 @@
 			/>
 		</div>
 
-		<div class="mt-auto grid grid-cols-2 gap-3 pt-4">
-			{#if !visualizer.isPlaying && visualizer.stepIndex === 0}
+		<!-- Playback Controls -->
+		<div class="mt-auto flex flex-col gap-3 pt-4">
+			<div class="grid grid-cols-4 gap-2">
+				<!-- Step Back -->
 				<button
-					onclick={handleSort}
-					class="bg-primary hover:bg-primary-dark focus:ring-primary/50 col-span-2 rounded-md py-2.5 font-medium text-white shadow-sm transition-all active:scale-95 focus:ring-2 focus:outline-none"
+					onclick={() => visualizer.stepBack()}
+					disabled={visualizer.trace.length === 0 ||
+						visualizer.isPlaying ||
+						visualizer.stepIndex <= 0}
+					class="bg-surface-200 hover:bg-surface-300 disabled:bg-surface-100 flex items-center justify-center rounded-md py-2 text-gray-700 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+					title="Step Back"
 				>
-					Start Sorting
+					<ChevronLeft size={20} />
 				</button>
-			{:else if visualizer.isPlaying}
+
+				<!-- Main Action Button: Start / Play / Pause -->
+				{#if visualizer.trace.length === 0}
+					<button
+						onclick={handleSort}
+						class="bg-primary hover:bg-primary-dark focus:ring-primary/50 col-span-2 flex items-center justify-center gap-2 rounded-md py-2 font-medium text-white shadow-sm transition-all active:scale-95 focus:ring-2 focus:outline-none"
+					>
+						<Play size={18} /> Start
+					</button>
+				{:else}
+					<button
+						onclick={() => (visualizer.isPlaying ? visualizer.pause() : visualizer.play())}
+						class="col-span-2 flex items-center justify-center gap-2 rounded-md py-2 font-medium text-white shadow-sm transition-all active:scale-95 {visualizer.isPlaying
+							? 'bg-vis-compare'
+							: 'bg-primary hover:bg-primary-dark'}"
+					>
+						{#if visualizer.isPlaying}
+							<Pause size={18} /> Pause
+						{:else}
+							<Play size={18} /> Resume
+						{/if}
+					</button>
+				{/if}
+
+				<!-- Step Forward -->
 				<button
-					onclick={() => visualizer.pause()}
-					class="bg-vis-compare hover:brightness-90 col-span-2 rounded-md py-2.5 font-medium text-white shadow-sm transition-all active:scale-95"
+					onclick={() => visualizer.stepForward()}
+					disabled={visualizer.trace.length === 0 ||
+						visualizer.isPlaying ||
+						visualizer.stepIndex >= visualizer.trace.length}
+					class="bg-surface-200 hover:bg-surface-300 disabled:bg-surface-100 flex items-center justify-center rounded-md py-2 text-gray-700 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+					title="Step Forward"
 				>
-					Pause
+					<ChevronRight size={20} />
 				</button>
-			{:else}
-				<button
-					onclick={() => visualizer.play()}
-					class="bg-primary hover:bg-primary-dark rounded-md py-2.5 font-medium text-white shadow-sm transition-all active:scale-95"
-				>
-					Resume
-				</button>
-				<button
-					onclick={() => visualizer.resetPlayback()}
-					class="bg-surface-200 text-surface-900 hover:bg-surface-300 rounded-md py-2.5 font-medium shadow-sm transition-all active:scale-95"
-				>
-					Reset
-				</button>
-			{/if}
+			</div>
+
+			<button
+				onclick={() => visualizer.resetPlayback()}
+				disabled={visualizer.trace.length === 0}
+				class="bg-surface-200 text-surface-900 hover:bg-surface-300 flex w-full items-center justify-center gap-2 rounded-md py-2.5 font-medium shadow-sm transition-all active:scale-95 disabled:opacity-50"
+			>
+				<RotateCcw size={16} /> Reset
+			</button>
 
 			<button
 				onclick={() => visualizer.generateArray(visualizer.array.length)}
 				disabled={visualizer.isPlaying}
-				class="bg-surface-200 hover:bg-surface-300 text-surface-900 focus:ring-surface-300/50 col-span-2 rounded-md py-2.5 font-medium transition-all active:scale-95 focus:ring-2 focus:outline-none disabled:opacity-50"
+				class="bg-surface-200 hover:bg-surface-300 text-surface-900 focus:ring-surface-300/50 flex w-full items-center justify-center gap-2 rounded-md py-2.5 font-medium transition-all active:scale-95 focus:ring-2 focus:outline-none disabled:opacity-50"
 			>
-				New Array
+				<Shuffle size={16} /> New Array
 			</button>
 		</div>
 	</div>

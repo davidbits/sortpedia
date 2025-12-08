@@ -22,6 +22,31 @@ export class VisualizerEngine {
 		this.generateArray(defaultSize);
 	}
 
+	// Derived state for the text label
+	get currentStepLabel(): string {
+		if (this.stepIndex >= this.trace.length && this.trace.length > 0) return 'Sorted!';
+		if (this.trace.length === 0 || this.stepIndex === 0) return 'Ready to sort';
+
+		// We display the description of the *last executed* step or the *current active* step
+		// depending on whether we are moving. Here we show what just happened/is happening.
+		const event = this.trace[this.stepIndex - 1]; // -1 because stepIndex points to next
+		if (!event) return 'Starting...';
+
+		const [i, j] = event.indices;
+		switch (event.type) {
+			case 'compare':
+				return `Comparing indices ${i} and ${j}`;
+			case 'swap':
+				return `Swapping values at ${i} and ${j}`;
+			case 'write':
+				return `Overwriting index ${i} with value ${event.value}`;
+			case 'sorted':
+				return `Marked index ${i} as sorted`;
+			default:
+				return 'Processing...';
+		}
+	}
+
 	generateArray(size: number) {
 		this.reset();
 		this.array = Array.from({ length: size }, () => Math.floor(Math.random() * 95) + 5);
@@ -87,21 +112,64 @@ export class VisualizerEngine {
 		this.array = [...this.initialArray];
 	}
 
+	/**
+	 * Steps backward by resetting to start and replaying history.
+	 * Efficient enough for N < 500.
+	 */
+	stepBack() {
+		this.pause();
+		if (this.stepIndex <= 0) return;
+
+		const targetIndex = this.stepIndex - 1;
+
+		// 1. Reset Data
+		this.array = [...this.initialArray];
+		this.sortedIndices = new SvelteSet();
+
+		// 2. Replay Logic (Data only) up to target - 1
+		for (let i = 0; i < targetIndex; i++) {
+			this.applyEventData(this.trace[i]);
+		}
+
+		// 3. Set Visuals for the target step (the one we are stepping "into")
+		// If we go back to 0, clear visuals.
+		if (targetIndex > 0) {
+			const prevEvent = this.trace[targetIndex - 1];
+			this.applyEventVisuals(prevEvent);
+		} else {
+			this.activeIndices = [];
+			this.eventType = null;
+		}
+
+		this.stepIndex = targetIndex;
+	}
+
+	/**
+	 * Single step forward wrapper
+	 */
+	stepForward() {
+		this.pause();
+		if (this.stepIndex >= this.trace.length) return;
+		this.step();
+	}
+
 	private loop() {
 		if (!this.isPlaying) return;
 
-		// Calculate items per frame based on speed
-		// Speed 1 = 1 op per 10 frames (slow)
-		// Speed 5 = 1 op per frame
-		// Speed 10 = 10 ops per frame
-		const opsPerFrame = this.speed >= 5 ? Math.pow(this.speed - 4, 2) : 1;
-
-		const delay = this.speed < 5 ? (5 - this.speed) * 100 : 0;
-
+		// Define execute inside loop so it closes over `this`
+		// but reads reactive `speed` property on every frame.
 		const execute = () => {
+			if (!this.isPlaying) return;
+
+			// Dynamic Speed Calculation per frame
+			// Speed 1-4: Adds delay. Speed 5-10: Batches operations.
+			const opsPerFrame = this.speed >= 5 ? Math.pow(this.speed - 4, 2) : 1;
+			const delay = this.speed < 5 ? (5 - this.speed) * 100 : 0;
+
+			// Execute batch
 			for (let i = 0; i < opsPerFrame; i++) {
 				if (this.stepIndex >= this.trace.length) {
-					this.isPlaying = false;
+					this.pause();
 					this.activeIndices = [];
 					this.eventType = null;
 					return;
@@ -109,28 +177,35 @@ export class VisualizerEngine {
 				this.step();
 			}
 
-			if (this.isPlaying) {
-				if (delay > 0) {
-					setTimeout(() => {
-						this.timer = requestAnimationFrame(execute);
-					}, delay);
-				} else {
-					this.timer = requestAnimationFrame(execute);
-				}
+			// Schedule next frame
+			if (delay > 0) {
+				setTimeout(() => {
+					if (this.isPlaying) this.timer = requestAnimationFrame(execute);
+				}, delay);
+			} else {
+				this.timer = requestAnimationFrame(execute);
 			}
 		};
 
 		this.timer = requestAnimationFrame(execute);
 	}
 
+	/**
+	 * Executes one step of the trace, updating both data and visuals
+	 */
 	step() {
 		const event = this.trace[this.stepIndex];
+		this.applyEventVisuals(event);
+		this.applyEventData(event);
+		this.stepIndex++;
+	}
 
-		// Update Visual State
+	private applyEventVisuals(event: SortEvent) {
 		this.activeIndices = event.indices;
 		this.eventType = event.type;
+	}
 
-		// Apply Logic to Array
+	private applyEventData(event: SortEvent) {
 		if (event.type === 'swap') {
 			const [i, j] = event.indices;
 			[this.array[i], this.array[j]] = [this.array[j], this.array[i]];
@@ -140,8 +215,6 @@ export class VisualizerEngine {
 		} else if (event.type === 'sorted') {
 			event.indices.forEach((i) => this.sortedIndices.add(i));
 		}
-
-		this.stepIndex++;
 	}
 
 	getBarColor(index: number) {
