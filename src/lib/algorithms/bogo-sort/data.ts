@@ -11,6 +11,8 @@ export const data: AlgorithmInfo = {
 		space: 'O(1)'
 	},
 	stable: false,
+	inPlace: true,
+	adaptive: false,
 	description:
 		'A famously inefficient algorithm that repeatedly generates random permutations of a list until it discovers one that is sorted.',
 	details: {

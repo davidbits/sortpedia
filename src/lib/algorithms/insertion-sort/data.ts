@@ -11,6 +11,8 @@ export const data: AlgorithmInfo = {
 		space: 'O(1)'
 	},
 	stable: true,
+	inPlace: true,
+	adaptive: true,
 	description:
 		'Builds the final sorted array one item at a time by repeatedly taking the next element and inserting it into its correct position among the already-sorted elements.',
 	details: {

@@ -3,14 +3,16 @@ import type { AlgorithmInfo } from '../types';
 export const data: AlgorithmInfo = {
 	id: 'tree-sort',
 	name: 'Tree Sort',
-	category: 'Insertion', // TODO: need a better category?
+	category: 'Tree',
 	complexity: {
 		best: 'O(n \\log n)',
 		average: 'O(n \\log n)',
 		worst: 'O(n^2)',
 		space: 'O(n)'
 	},
-	stable: false, // TODO: verify
+	stable: false,
+	inPlace: false,
+	adaptive: false,
 	description:
 		'A sorting algorithm that builds a Binary Search Tree (BST) from the input elements and then performs an in-order traversal to retrieve the elements in sorted order.',
 	details: {

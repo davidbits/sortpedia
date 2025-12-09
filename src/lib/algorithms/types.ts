@@ -1,7 +1,17 @@
 export interface AlgorithmInfo {
 	id: string;
 	name: string;
-	category: 'Exchange' | 'Selection' | 'Insertion' | 'Merge' | 'Distribution' | 'Brute Force';
+	category:
+		| 'Exchange'
+		| 'Selection'
+		| 'Insertion'
+		| 'Merge'
+		| 'Distribution'
+		| 'Brute Force'
+		| 'Divide and Conquer'
+		| 'Randomized'
+		| 'Hybrid'
+		| 'Tree';
 	complexity: {
 		best: string;
 		average: string;
@@ -9,6 +19,8 @@ export interface AlgorithmInfo {
 		space: string;
 	};
 	stable: boolean;
+	adaptive: boolean;
+	inPlace: boolean;
 	description: string;
 	details: {
 		summary: string;

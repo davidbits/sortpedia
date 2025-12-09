@@ -11,6 +11,8 @@ export const data: AlgorithmInfo = {
 		space: 'O(\\log n)' // Based on recursive call stack depth
 	},
 	stable: false,
+	inPlace: true,
+	adaptive: false,
 	description:
 		'A comparison-based sorting algorithm that uses a Binary Heap data structure. It is an optimized version of selection sort that builds a Max-Heap to efficiently find the maximum element.',
 	details: {

@@ -1,19 +1,13 @@
 <script>
-	import { algorithms } from '$lib/algorithms';
+	import {
+		algorithms,
+		categoryExplanations,
+		adaptiveExplanation,
+		inPlaceExplanation
+	} from '$lib/algorithms';
 	import { resolve } from '$app/paths';
 	import { fade } from 'svelte/transition';
 	import Latex from '$lib/components/Latex.svelte';
-
-	const categoryExplanations = {
-		Exchange:
-			'Sorts by repeatedly swapping adjacent elements to move them to their correct positions.',
-		Selection: 'Sorts by repeatedly finding the minimum element and placing it at the beginning.',
-		Insertion:
-			'Sorts by building a final sorted array one item at a time, inserting it into place.',
-		Merge: 'Sorts by recursively dividing the list, sorting the halves, and merging them back.',
-		Distribution: 'Sorts by distributing elements into buckets based on their values.',
-		'Brute Force': 'Sorts by generating and testing possibilities until a solution is found.'
-	};
 </script>
 
 <div class="flex flex-col gap-8">
@@ -61,6 +55,44 @@
 								></div>
 							</div>
 						</div>
+
+						<!-- Adaptive Tag -->
+						{#if algo.adaptive}
+							<div class="group/tooltip relative">
+								<span
+									class="bg-indigo-50 text-indigo-800 border-indigo-200 cursor-help rounded border px-2 py-1 text-xs font-medium"
+								>
+									Adaptive
+								</span>
+								<div
+									class="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-max max-w-[200px] -translate-x-1/2 rounded-md bg-surface-900 px-3 py-2 text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover/tooltip:opacity-100"
+								>
+									{adaptiveExplanation}
+									<div
+										class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-x-transparent border-b-transparent border-t-surface-900"
+									></div>
+								</div>
+							</div>
+						{/if}
+
+						<!-- In-Place Tag -->
+						{#if algo.inPlace}
+							<div class="group/tooltip relative">
+								<span
+									class="bg-teal-50 text-teal-800 border-teal-200 cursor-help rounded border px-2 py-1 text-xs font-medium"
+								>
+									In-Place
+								</span>
+								<div
+									class="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-max max-w-[200px] -translate-x-1/2 rounded-md bg-surface-900 px-3 py-2 text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover/tooltip:opacity-100"
+								>
+									{inPlaceExplanation}
+									<div
+										class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-x-transparent border-b-transparent border-t-surface-900"
+									></div>
+								</div>
+							</div>
+						{/if}
 
 						<!-- Stability Tag with Tooltip -->
 						{#if algo.stable}

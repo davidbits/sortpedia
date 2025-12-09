@@ -3,7 +3,7 @@ import type { AlgorithmInfo } from '../types';
 export const data: AlgorithmInfo = {
 	id: 'shell-sort',
 	name: 'Shell Sort',
-	category: 'Insertion',
+	category: 'Insertion', // Technically is a generalization of Insertion Sort (or more accurately, a gapped insertion sort)
 	complexity: {
 		best: 'O(n \\log n)',
 		average: 'O(n^{3/2})',
@@ -11,6 +11,8 @@ export const data: AlgorithmInfo = {
 		space: 'O(1)'
 	},
 	stable: false,
+	inPlace: true,
+	adaptive: true,
 	description:
 		'An optimization of Insertion Sort that allows the exchange of items that are far apart, improving efficiency by moving elements to their correct position more quickly.',
 	details: {

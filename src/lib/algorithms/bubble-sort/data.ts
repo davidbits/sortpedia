@@ -11,6 +11,8 @@ export const data: AlgorithmInfo = {
 		space: 'O(1)'
 	},
 	stable: true,
+	inPlace: true,
+	adaptive: true,
 	description:
 		'The simplest sorting algorithm that repeatedly swaps adjacent elements if they are in the wrong order.',
 	details: {

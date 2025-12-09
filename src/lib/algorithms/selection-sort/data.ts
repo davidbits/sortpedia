@@ -11,6 +11,8 @@ export const data: AlgorithmInfo = {
 		space: 'O(1)'
 	},
 	stable: false,
+	inPlace: true,
+	adaptive: false,
 	description:
 		'A simple sorting algorithm that repeatedly finds the minimum element from the unsorted part and puts it at the beginning.',
 	details: {

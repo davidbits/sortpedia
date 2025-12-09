@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { getAlgorithm } from '$lib/algorithms';
+	import {
+		getAlgorithm,
+		categoryExplanations,
+		adaptiveExplanation,
+		inPlaceExplanation
+	} from '$lib/algorithms';
 	import { resolve } from '$app/paths';
 	import { VisualizerEngine } from '$lib/stores/visualizer.svelte';
 	import VisualizerDisplay from '$lib/components/visualizer/VisualizerDisplay.svelte';
@@ -16,17 +21,6 @@
 	// Bogo Sort is only practical for tiny arrays. Set a specific size for it.
 	const DEMO_SIZE = $derived(algorithm?.id === 'bogo-sort' ? 5 : 20);
 	const demoEngine = new VisualizerEngine(0);
-
-	const categoryExplanations = {
-		Exchange:
-			'Sorts by repeatedly swapping adjacent elements to move them to their correct positions.',
-		Selection: 'Sorts by repeatedly finding the minimum element and placing it at the beginning.',
-		Insertion:
-			'Sorts by building a final sorted array one item at a time, inserting it into place.',
-		Merge: 'Sorts by recursively dividing the list, sorting the halves, and merging them back.',
-		Distribution: 'Sorts by distributing elements into buckets based on their values.',
-		'Brute Force': 'Sorts by generating and testing possibilities until a solution is found.'
-	};
 
 	// Reset demo when algorithm or size changes
 	$effect(() => {
@@ -103,6 +97,60 @@
 							></div>
 						</div>
 					</div>
+
+					<!-- Adaptive Tag -->
+					{#if algorithm.adaptive}
+						<div class="group relative">
+							<span
+								class="bg-indigo-100 text-indigo-800 cursor-help rounded-full px-4 py-1.5 text-sm font-bold"
+							>
+								Adaptive
+							</span>
+							<div
+								class="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-max max-w-[200px] -translate-x-1/2 rounded-md bg-surface-900 px-3 py-2 text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover:opacity-100"
+							>
+								{adaptiveExplanation}
+								<div
+									class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-x-transparent border-b-transparent border-t-surface-900"
+								></div>
+							</div>
+						</div>
+					{/if}
+
+					<!-- In-Place Tag -->
+					{#if algorithm.inPlace}
+						<div class="group relative">
+							<span
+								class="bg-teal-100 text-teal-800 cursor-help rounded-full px-4 py-1.5 text-sm font-bold"
+							>
+								In-Place
+							</span>
+							<div
+								class="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-max max-w-[200px] -translate-x-1/2 rounded-md bg-surface-900 px-3 py-2 text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover:opacity-100"
+							>
+								{inPlaceExplanation}
+								<div
+									class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-x-transparent border-b-transparent border-t-surface-900"
+								></div>
+							</div>
+						</div>
+					{:else}
+						<div class="group relative">
+							<span
+								class="bg-orange-100 text-orange-800 cursor-help rounded-full px-4 py-1.5 text-sm font-bold"
+							>
+								Out-of-Place
+							</span>
+							<div
+								class="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-max max-w-[200px] -translate-x-1/2 rounded-md bg-surface-900 px-3 py-2 text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover:opacity-100"
+							>
+								Requires auxiliary memory proportional to the input size (O(n)).
+								<div
+									class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-x-transparent border-b-transparent border-t-surface-900"
+								></div>
+							</div>
+						</div>
+					{/if}
 
 					<!-- Stability Tag with Tooltip -->
 					{#if algorithm.stable}

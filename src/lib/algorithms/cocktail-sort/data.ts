@@ -11,6 +11,8 @@ export const data: AlgorithmInfo = {
 		space: 'O(1)'
 	},
 	stable: true,
+	inPlace: true,
+	adaptive: true,
 	description:
 		'A bidirectional variation of Bubble Sort that sorts in both directions on each pass to improve performance by moving elements to their correct position more quickly.',
 	details: {

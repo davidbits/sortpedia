@@ -11,6 +11,8 @@ export const data: AlgorithmInfo = {
 		space: 'O(1)'
 	},
 	stable: false,
+	inPlace: true,
+	adaptive: false,
 	description:
 		'An improvement on Bubble Sort that eliminates "turtles" (small values near the end) by comparing and swapping elements that are far apart.',
 	details: {

@@ -3,7 +3,7 @@ import type { AlgorithmInfo } from '../types';
 export const data: AlgorithmInfo = {
 	id: 'merge-sort',
 	name: 'Merge Sort',
-	category: 'Merge',
+	category: 'Divide and Conquer',
 	complexity: {
 		best: 'O(n \\log n)',
 		average: 'O(n \\log n)',
@@ -11,6 +11,8 @@ export const data: AlgorithmInfo = {
 		space: 'O(n)'
 	},
 	stable: true,
+	inPlace: false,
+	adaptive: false,
 	description:
 		'A highly reliable, stable sorting algorithm that works by recursively dividing the array into halves, sorting them, and merging them back together.',
 	details: {

@@ -3,7 +3,7 @@ import type { AlgorithmInfo } from '../types';
 export const data: AlgorithmInfo = {
 	id: 'gnome-sort',
 	name: 'Gnome Sort',
-	category: 'Insertion',
+	category: 'Exchange',
 	complexity: {
 		best: 'O(n)',
 		average: 'O(n^2)',
@@ -11,6 +11,8 @@ export const data: AlgorithmInfo = {
 		space: 'O(1)'
 	},
 	stable: true,
+	inPlace: true,
+	adaptive: true,
 	description:
 		'A simple sorting algorithm that moves an element to its correct place through a series of adjacent swaps, resembling a garden gnome sorting flower pots.',
 	details: {

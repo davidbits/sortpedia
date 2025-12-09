@@ -11,6 +11,8 @@ export const data: AlgorithmInfo = {
 		space: 'O(1)'
 	},
 	stable: true,
+	inPlace: true,
+	adaptive: true,
 	description:
 		'A variation of Bubble Sort that sorts by repeatedly applying comparison and swap operations to elements in separate "odd" and "even" phases.',
 	details: {
