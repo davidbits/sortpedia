@@ -30,7 +30,7 @@ export const data: AlgorithmInfo = {
 			'**Space Complexity:** Its primary drawback is the need for auxiliary space. It requires an auxiliary array of size $O(n)$, which can be an issue for very large datasets in memory-constrained environments.',
 			'**Slower for Small Lists:** The overhead of recursion and copying to an auxiliary array makes it less efficient than simpler algorithms like Insertion Sort for very small arrays.'
 		],
-		pseudocode: `// Initial call requires a copy of the original array.
+		javascript: `// Initial call requires a copy of the original array.
 function mergeSort(arr) {
   let aux = [...arr]; // Create auxiliary array once.
   mergeSortRecursive(arr, 0, arr.length - 1, aux);

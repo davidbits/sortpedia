@@ -32,7 +32,7 @@ export const data: AlgorithmInfo = {
 			'**Unstable:** It does not preserve the relative order of equal elements, making it unsuitable for certain applications where stability is required.',
 			'**Complex Implementation:** A naive implementation can easily fall into the worst-case scenario. Optimizations like random pivots or median-of-three are often needed for robust performance.'
 		],
-		pseudocode: `// Main Quick Sort function
+		javascript: `// Main Quick Sort function
 function quickSort(arr, low, high) {
   if (low < high) {
     // pi is the partitioning index, arr[pi] is now at its final place

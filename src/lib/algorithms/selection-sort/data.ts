@@ -35,7 +35,7 @@ export const data: AlgorithmInfo = {
 			"**Not Adaptive**: The algorithm's runtime is not affected by the initial order of the elements. It will perform the same number of comparisons even if the list is already sorted.",
 			'**Unstable**: It does not preserve the relative order of equal-valued elements.'
 		],
-		pseudocode: `function selectionSort(arr) {
+		javascript: `function selectionSort(arr) {
   let n = arr.length;
   
   // One by one move boundary of unsorted subarray

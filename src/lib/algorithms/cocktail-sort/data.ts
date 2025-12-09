@@ -34,7 +34,7 @@ export const data: AlgorithmInfo = {
 			'**Inefficient for Large Datasets**: Its $O(n^2)$ average and worst-case time complexity makes it very slow for large, randomly ordered lists.',
 			'**Outperformed by Advanced Algorithms**: Significantly slower than more advanced algorithms like Quick Sort, Merge Sort, or Shell Sort.'
 		],
-		pseudocode: `function cocktailSort(arr) {
+		javascript: `function cocktailSort(arr) {
   let swapped = true;
   let start = 0;
   let end = arr.length;

@@ -32,7 +32,7 @@ export const data: AlgorithmInfo = {
 			'**Many Comparisons**: Like Bubble Sort, it performs a large number of comparisons, regardless of the initial order of the array (though the swap optimization helps).',
 			'**Not Adaptive (by default)**: While it can detect a sorted array in $O(n)$, its overall performance doesn\'t improve significantly for "almost sorted" lists compared to algorithms like Insertion Sort.'
 		],
-		pseudocode: `function oddEvenSort(arr) {
+		javascript: `function oddEvenSort(arr) {
   let n = arr.length;
   let isSorted = false;
 

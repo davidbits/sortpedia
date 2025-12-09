@@ -31,7 +31,7 @@ export const data: AlgorithmInfo = {
 			'**Unbounded Runtime**: There is no upper bound on its running time. While it will *eventually* find the sorted order, it is not guaranteed to terminate in any practical amount of time.',
 			'**Impractical**: It is never used in practice and exists purely for academic and humorous purposes.'
 		],
-		pseudocode: `function isSorted(list) {
+		javascript: `function isSorted(list) {
   for (let i = 0; i < list.length - 1; i++) {
     if list[i] > list[i+1] {
       return false

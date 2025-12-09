@@ -34,7 +34,7 @@ export const data: AlgorithmInfo = {
 			'**Worst-Case Performance**: Still has a worst-case time complexity of $O(n^2)$.',
 			'**Outperformed by Advanced Sorts**: Algorithms like Quick Sort and Merge Sort are generally faster for large datasets.'
 		],
-		pseudocode: `function combSort(arr) {
+		javascript: `function combSort(arr) {
   let n = arr.length;
   let gap = n;
   const shrink = 1.3;

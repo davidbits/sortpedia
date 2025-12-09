@@ -33,7 +33,7 @@ export const data: AlgorithmInfo = {
 			'**Inefficient for Large Datasets**: Its $O(n^2)$ average and worst-case time complexity makes it very slow for large, randomly ordered lists.',
 			'**Obscure**: Less known and less frequently used in practice compared to its conceptual cousin, Insertion Sort.'
 		],
-		pseudocode: `function gnomeSort(arr) {
+		javascript: `function gnomeSort(arr) {
   let n = arr.length;
   let pos = 0;
 

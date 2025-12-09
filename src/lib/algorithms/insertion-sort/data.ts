@@ -35,7 +35,7 @@ export const data: AlgorithmInfo = {
 			'**Inefficient for Large Datasets**: Its $O(n^2)$ average and worst-case time complexity makes it very slow for large, randomly ordered lists.',
 			'**Quadratic Worst-Case**: Performance degrades significantly on reverse-sorted data, which represents its worst-case scenario.'
 		],
-		pseudocode: `function insertionSort(arr) {
+		javascript: `function insertionSort(arr) {
   // Start from the second element (arr[0] is trivially sorted)
   for (let i = 1; i < arr.length; i++) {
     // The element to be inserted into the sorted portion

@@ -15,7 +15,7 @@ export interface AlgorithmInfo {
 		steps: string[];
 		advantages: string[];
 		disadvantages: string[];
-		pseudocode: string;
+		javascript: string;
 		funFacts?: string[];
 	};
 }

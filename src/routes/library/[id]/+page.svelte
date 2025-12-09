@@ -254,7 +254,7 @@
 				<section>
 					<h2 class="text-surface-900 mb-4 text-2xl font-bold">Implementation</h2>
 					<CodeBlock
-						code={algorithm.details.pseudocode}
+						code={algorithm.details.javascript}
 						language="JavaScript"
 						filename={`${algorithm.id}.js`}
 					/>

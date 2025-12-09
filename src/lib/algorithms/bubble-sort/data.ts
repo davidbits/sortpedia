@@ -35,7 +35,7 @@ export const data: AlgorithmInfo = {
 			'**Redundant Swaps**: It performs many swap operations, which can be costly if writing to memory is expensive.',
 			'**Turtles**: Small elements at the end of the list move to the beginning very slowly (one position per pass). These are known as "turtles" and significantly degrade performance.'
 		],
-		pseudocode: `function bubbleSort(arr) {
+		javascript: `function bubbleSort(arr) {
   let n = arr.length;
   let swapped;
   

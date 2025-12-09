@@ -34,7 +34,7 @@ export const data: AlgorithmInfo = {
 			'**Complexity Dependency**: The algorithm’s efficiency is highly dependent on the gap sequence used. A poor choice can lead to worst-case $O(n^2)$ performance.',
 			'**Not the Fastest**: Advanced algorithms like Quick Sort, Merge Sort, and Heap Sort outperform it for large datasets.'
 		],
-		pseudocode: `function shellSort(arr) {
+		javascript: `function shellSort(arr) {
   let n = arr.length;
 
   // Start with a large gap, then reduce the gap
