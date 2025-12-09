@@ -3,7 +3,8 @@ import type { AlgorithmInfo } from '../types';
 export const data: AlgorithmInfo = {
 	id: 'tree-sort',
 	name: 'Tree Sort',
-	category: 'Tree',
+	group: 'Comparison-Based',
+	category: ['Tree'],
 	complexity: {
 		best: 'O(n \\log n)',
 		average: 'O(n \\log n)',

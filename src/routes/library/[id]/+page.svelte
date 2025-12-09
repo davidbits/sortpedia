@@ -75,31 +75,34 @@
 
 			<div class="mt-2">
 				<!-- Name and Tags grouped together -->
-				<div class="flex flex-wrap items-center gap-x-6 gap-y-4">
+				<div class="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
 					<h1 class="text-surface-900 text-4xl font-extrabold tracking-tight sm:text-5xl">
 						{algorithm.name}
 					</h1>
 
-					<!-- spacer to push tags to the right -->
-					<div class="grow"></div>
-
-					<div class="flex shrink-0 flex-wrap items-center gap-2">
-						<!-- Category Tag -->
-						<div class="group relative">
-							<span
-								class="bg-primary/10 text-primary cursor-help rounded-full px-4 py-1.5 text-sm font-bold"
-							>
-								{algorithm.category} Sort
-							</span>
-							<div
-								class="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-40 -translate-x-1/2 whitespace-normal rounded-md bg-surface-900 px-3 py-2 text-center text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 sm:max-w-xs"
-							>
-								{categoryExplanations[algorithm.category]}
-								<div
-									class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-x-transparent border-b-transparent border-t-surface-900"
-								></div>
+					<div class="flex flex-wrap items-center gap-2 sm:justify-end">
+						<!-- Category Tags -->
+						{#each algorithm.category as category, i (category)}
+							<div class="group relative">
+								<span
+									class="cursor-help rounded-full px-4 py-1.5 text-sm font-bold {i === 0
+										? 'bg-primary/10 text-primary'
+										: 'bg-surface-100 text-surface-800'}"
+								>
+									{category}
+								</span>
+								{#if categoryExplanations[category]}
+									<div
+										class="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-40 -translate-x-1/2 whitespace-normal rounded-md bg-surface-900 px-3 py-2 text-center text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 sm:max-w-xs"
+									>
+										{categoryExplanations[category]}
+										<div
+											class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-x-transparent border-b-transparent border-t-surface-900"
+										></div>
+									</div>
+								{/if}
 							</div>
-						</div>
+						{/each}
 
 						<!-- Adaptive Tag -->
 						{#if algorithm.adaptive}

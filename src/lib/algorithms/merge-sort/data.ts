@@ -3,7 +3,8 @@ import type { AlgorithmInfo } from '../types';
 export const data: AlgorithmInfo = {
 	id: 'merge-sort',
 	name: 'Merge Sort',
-	category: 'Divide and Conquer',
+	group: 'Comparison-Based',
+	category: ['Divide and Conquer'],
 	complexity: {
 		best: 'O(n \\log n)',
 		average: 'O(n \\log n)',

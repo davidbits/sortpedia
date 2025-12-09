@@ -3,7 +3,8 @@ import type { AlgorithmInfo } from '../types';
 export const data: AlgorithmInfo = {
 	id: 'smooth-sort',
 	name: 'Smooth Sort',
-	category: 'Heap',
+	group: 'Comparison-Based',
+	category: ['Heap', 'Selection'],
 	complexity: {
 		best: 'O(n)',
 		average: 'O(n \\log n)',

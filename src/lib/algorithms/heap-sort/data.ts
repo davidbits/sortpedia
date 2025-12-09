@@ -3,7 +3,8 @@ import type { AlgorithmInfo } from '../types';
 export const data: AlgorithmInfo = {
 	id: 'heap-sort',
 	name: 'Heap Sort',
-	category: 'Selection',
+	group: 'Comparison-Based',
+	category: ['Heap', 'Selection'],
 	complexity: {
 		best: 'O(n \\log n)',
 		average: 'O(n \\log n)',

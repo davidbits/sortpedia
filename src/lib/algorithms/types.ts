@@ -1,18 +1,28 @@
 export interface AlgorithmInfo {
 	id: string;
 	name: string;
-	category:
-		| 'Exchange'
+	group: 'Comparison-Based' | 'Non-Comparison-Based' | 'Specialized';
+	category: (// Comparison-Based
+	| 'Exchange'
 		| 'Selection'
 		| 'Insertion'
-		| 'Merge'
-		| 'Distribution'
-		| 'Brute Force'
 		| 'Divide and Conquer'
-		| 'Randomized'
 		| 'Hybrid'
 		| 'Tree'
-		| 'Heap';
+		| 'Heap'
+		| 'Probabilistic'
+		| 'Brute Force'
+		// Non-Comparison-Based / Distribution-Based
+		| 'Counting'
+		| 'Bucket'
+		| 'Radix'
+		| 'Pigeonhole' // A specific case of bucket counting
+		// Specialized / Other
+		| 'External'
+		| 'Parallel'
+		| 'Cache-Efficient'
+		| 'Online'
+	)[];
 	complexity: {
 		best: string;
 		average: string;

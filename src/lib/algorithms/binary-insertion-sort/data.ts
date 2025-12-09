@@ -3,7 +3,8 @@ import type { AlgorithmInfo } from '../types';
 export const data: AlgorithmInfo = {
 	id: 'binary-insertion-sort',
 	name: 'Binary Insertion Sort',
-	category: 'Insertion',
+	group: 'Comparison-Based',
+	category: ['Insertion'],
 	complexity: {
 		best: 'O(n \\log n)', // Comparisons are log-linear, though shifts remain linear
 		average: 'O(n^2)',

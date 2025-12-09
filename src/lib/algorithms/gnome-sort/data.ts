@@ -3,7 +3,8 @@ import type { AlgorithmInfo } from '../types';
 export const data: AlgorithmInfo = {
 	id: 'gnome-sort',
 	name: 'Gnome Sort',
-	category: 'Exchange',
+	group: 'Comparison-Based',
+	category: ['Insertion'],
 	complexity: {
 		best: 'O(n)',
 		average: 'O(n^2)',

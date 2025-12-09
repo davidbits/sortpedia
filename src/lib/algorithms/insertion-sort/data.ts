@@ -3,7 +3,8 @@ import type { AlgorithmInfo } from '../types';
 export const data: AlgorithmInfo = {
 	id: 'insertion-sort',
 	name: 'Insertion Sort',
-	category: 'Insertion',
+	group: 'Comparison-Based',
+	category: ['Insertion'],
 	complexity: {
 		best: 'O(n)',
 		average: 'O(n^2)',

@@ -29,6 +29,7 @@ body {
 	display: flex;
 	flex-direction: column;
 	overflow-y: scroll; /* Prevent layout shift during transitions */
+	overflow-x: clip; /* Prevent horizontal overflow from tooltips on mobile */
 }
 
 /* Custom Range Slider Styling for Cross-Browser Consistency */

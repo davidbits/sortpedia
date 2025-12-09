@@ -3,7 +3,8 @@ import type { AlgorithmInfo } from '../types';
 export const data: AlgorithmInfo = {
 	id: 'quick-sort',
 	name: 'Quick Sort',
-	category: 'Divide and Conquer',
+	group: 'Comparison-Based',
+	category: ['Divide and Conquer', 'Exchange'],
 	complexity: {
 		best: 'O(n \\log n)',
 		average: 'O(n \\log n)',

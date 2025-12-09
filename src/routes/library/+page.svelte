@@ -22,7 +22,7 @@
 	let sortAsc = $state(true);
 
 	// Derived Data
-	let categories = $derived(['All', ...new Set(algorithms.map((a) => a.category))].sort());
+	let categories = $derived(['All', ...new Set(algorithms.flatMap((a) => a.category))].sort());
 
 	// Check if any filter is active for the Reset button state
 	let isFiltered = $derived(
@@ -38,7 +38,8 @@
 		algorithms
 			.filter((algo) => {
 				const matchesSearch = algo.name.toLowerCase().includes(searchQuery.toLowerCase());
-				const matchesCategory = selectedCategory === 'All' || algo.category === selectedCategory;
+				const matchesCategory =
+					selectedCategory === 'All' || algo.category.includes(selectedCategory);
 				const matchesStable = !filterStable || algo.stable;
 				const matchesAdaptive = !filterAdaptive || algo.adaptive;
 				const matchesInPlace = !filterInPlace || algo.inPlace;
@@ -191,22 +192,26 @@
 						</p>
 
 						<div class="mt-6 flex flex-wrap items-center gap-2">
-							<!-- Category Tag with Tooltip -->
-							<div class="group/tooltip relative">
-								<span
-									class="bg-surface-100 text-surface-800 border-surface-200 cursor-help rounded border px-2 py-1 text-xs font-medium"
-								>
-									{algo.category}
-								</span>
-								<div
-									class="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-40 -translate-x-1/2 whitespace-normal rounded-md bg-surface-900 px-3 py-2 text-center text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover/tooltip:opacity-100 sm:max-w-xs"
-								>
-									{categoryExplanations[algo.category]}
-									<div
-										class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-x-transparent border-b-transparent border-t-surface-900"
-									></div>
+							<!-- Category Tags with Tooltips -->
+							{#each algo.category as category (category)}
+								<div class="group/tooltip relative">
+									<span
+										class="bg-surface-100 text-surface-800 border-surface-200 cursor-help rounded border px-2 py-1 text-xs font-medium"
+									>
+										{category}
+									</span>
+									{#if categoryExplanations[category]}
+										<div
+											class="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-40 -translate-x-1/2 whitespace-normal rounded-md bg-surface-900 px-3 py-2 text-center text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover/tooltip:opacity-100 sm:max-w-xs"
+										>
+											{categoryExplanations[category]}
+											<div
+												class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-x-transparent border-b-transparent border-t-surface-900"
+											></div>
+										</div>
+									{/if}
 								</div>
-							</div>
+							{/each}
 
 							<!-- Adaptive Tag -->
 							{#if algo.adaptive}

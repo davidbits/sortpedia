@@ -3,7 +3,8 @@ import type { AlgorithmInfo } from '../types';
 export const data: AlgorithmInfo = {
 	id: 'bogo-sort',
 	name: 'Bogo Sort',
-	category: 'Brute Force',
+	group: 'Comparison-Based',
+	category: ['Brute Force', 'Probabilistic'],
 	complexity: {
 		best: 'O(n)',
 		average: 'O(n \\cdot n!)',

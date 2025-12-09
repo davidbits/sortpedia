@@ -3,7 +3,8 @@ import type { AlgorithmInfo } from '../types';
 export const data: AlgorithmInfo = {
 	id: 'shell-sort',
 	name: 'Shell Sort',
-	category: 'Insertion', // Technically is a generalization of Insertion Sort (or more accurately, a gapped insertion sort)
+	group: 'Comparison-Based',
+	category: ['Insertion'], // Technically is a generalization of Insertion Sort (or more accurately, a gapped insertion sort)
 	complexity: {
 		best: 'O(n \\log n)',
 		average: 'O(n^{3/2})',

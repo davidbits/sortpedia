@@ -3,7 +3,8 @@ import type { AlgorithmInfo } from '../types';
 export const data: AlgorithmInfo = {
 	id: 'cocktail-sort',
 	name: 'Cocktail Sort',
-	category: 'Exchange',
+	group: 'Comparison-Based',
+	category: ['Exchange'],
 	complexity: {
 		best: 'O(n)',
 		average: 'O(n^2)',
