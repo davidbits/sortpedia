@@ -31,7 +31,7 @@
 		<div
 			class="bg-surface-50/90 border-surface-200 absolute top-4 left-4 rounded border p-2 text-xs font-mono shadow backdrop-blur"
 		>
-			<div>Ops: {engine.stepIndex} / {engine.trace.length}</div>
+			<div>Ops: {engine.operationIndex} / {engine.totalOperations}</div>
 			<div>Status: {engine.isPlaying ? 'Running' : 'Idle'}</div>
 		</div>
 	{/if}

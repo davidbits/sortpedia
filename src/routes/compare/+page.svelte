@@ -16,10 +16,10 @@
 
 	let isRunning = $derived(engineA.isPlaying || engineB.isPlaying);
 	let isFinished = $derived(
-		engineA.trace.length > 0 &&
-			engineA.stepIndex >= engineA.trace.length &&
-			engineB.trace.length > 0 &&
-			engineB.stepIndex >= engineB.trace.length
+		engineA.totalOperations > 0 &&
+			engineA.operationIndex >= engineA.totalOperations &&
+			engineB.totalOperations > 0 &&
+			engineB.operationIndex >= engineB.totalOperations
 	);
 
 	function generateSharedArray() {
@@ -194,25 +194,25 @@
 
 			<div class="border-t pt-2 text-left">Total Operations</div>
 			<div class="border-t pt-2 font-mono">
-				{engineA.trace.length > 0 ? engineA.trace.length : '-'}
+				{engineA.totalOperations > 0 ? engineA.totalOperations : '-'}
 			</div>
 			<div class="border-t pt-2 font-mono">
-				{engineB.trace.length > 0 ? engineB.trace.length : '-'}
+				{engineB.totalOperations > 0 ? engineB.totalOperations : '-'}
 			</div>
 
 			<div class="border-t pt-2 text-left">Current Step</div>
-			<div class="border-t pt-2 font-mono">{engineA.stepIndex}</div>
-			<div class="border-t pt-2 font-mono">{engineB.stepIndex}</div>
+			<div class="border-t pt-2 font-mono">{engineA.operationIndex}</div>
+			<div class="border-t pt-2 font-mono">{engineB.operationIndex}</div>
 
 			<div class="border-t pt-2 text-left">Progress</div>
 			<div class="border-t pt-2 font-mono">
-				{engineA.trace.length > 0
-					? Math.round((engineA.stepIndex / engineA.trace.length) * 100)
+				{engineA.totalOperations > 0
+					? Math.round((engineA.operationIndex / engineA.totalOperations) * 100)
 					: 0}%
 			</div>
 			<div class="border-t pt-2 font-mono">
-				{engineB.trace.length > 0
-					? Math.round((engineB.stepIndex / engineB.trace.length) * 100)
+				{engineB.totalOperations > 0
+					? Math.round((engineB.operationIndex / engineB.totalOperations) * 100)
 					: 0}%
 			</div>
 		</div>

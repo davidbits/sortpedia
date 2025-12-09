@@ -97,7 +97,7 @@
 					onclick={() => visualizer.stepBack()}
 					disabled={visualizer.trace.length === 0 ||
 						visualizer.isPlaying ||
-						visualizer.stepIndex <= 0}
+						visualizer.operationIndex <= 0}
 					class="bg-surface-200 hover:bg-surface-300 disabled:bg-surface-100 flex items-center justify-center rounded-md py-2 text-gray-700 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
 					title="Step Back"
 				>
@@ -115,7 +115,8 @@
 				{:else}
 					<button
 						onclick={() => (visualizer.isPlaying ? visualizer.pause() : visualizer.play())}
-						class="col-span-2 flex items-center justify-center gap-2 rounded-md py-2 font-medium text-white shadow-sm transition-all active:scale-95 {visualizer.isPlaying
+						disabled={visualizer.operationIndex >= visualizer.totalOperations}
+						class="col-span-2 flex items-center justify-center gap-2 rounded-md py-2 font-medium text-white shadow-sm transition-all active:scale-95 disabled:opacity-50 {visualizer.isPlaying
 							? 'bg-vis-compare'
 							: 'bg-primary hover:bg-primary-dark'}"
 					>
@@ -132,7 +133,7 @@
 					onclick={() => visualizer.stepForward()}
 					disabled={visualizer.trace.length === 0 ||
 						visualizer.isPlaying ||
-						visualizer.stepIndex >= visualizer.trace.length}
+						visualizer.operationIndex >= visualizer.totalOperations}
 					class="bg-surface-200 hover:bg-surface-300 disabled:bg-surface-100 flex items-center justify-center rounded-md py-2 text-gray-700 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
 					title="Step Forward"
 				>

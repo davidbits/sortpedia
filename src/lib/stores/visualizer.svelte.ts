@@ -1,11 +1,13 @@
-import type { SortEvent } from '$lib/algorithms/types';
+import type { SortEvent, SortWorkerResponse } from '$lib/algorithms/types';
 import { SvelteSet } from 'svelte/reactivity';
 
 export class VisualizerEngine {
 	// State
 	array = $state<number[]>([]);
 	trace = $state<SortEvent[]>([]);
-	stepIndex = $state(0);
+	stepIndex = $state(0); // Raw index in the full event trace
+	operationIndex = $state(0); // Counts only "compare", "swap", "write", etc.
+	totalOperations = $state(0); // The total number of operational events in the trace
 	isPlaying = $state(false);
 	speed = $state(5); // 1-10
 
@@ -25,7 +27,7 @@ export class VisualizerEngine {
 	// Derived state for the text label
 	get currentStepLabel(): string {
 		// When the trace is finished, check the final state of the array.
-		if (this.stepIndex >= this.trace.length && this.trace.length > 0) {
+		if (this.operationIndex >= this.totalOperations && this.totalOperations > 0) {
 			// Use an internal check to see if the array is actually sorted.
 			const isActuallySorted = this._isSortedCheck();
 			return isActuallySorted ? 'Sorted!' : 'Failed to sort (max attempts reached)';
@@ -46,6 +48,8 @@ export class VisualizerEngine {
 			case 'write':
 				return `Overwriting index ${i} with value ${event.value}`;
 			case 'sorted':
+				// This label is almost never seen because sorted events are instant are "merged" with the
+				// prior event which takes label priority.
 				return `Marked index ${i} as sorted`;
 			case 'shuffle':
 				return `Randomly shuffling all elements`;
@@ -74,9 +78,10 @@ export class VisualizerEngine {
 		const WorkerModule = await import('$lib/logic/worker?worker');
 		this.worker = new WorkerModule.default();
 
-		this.worker.onmessage = (e) => {
+		this.worker.onmessage = (e: MessageEvent<SortWorkerResponse>) => {
 			const { trace } = e.data;
 			this.trace = trace;
+			this.totalOperations = trace.filter((event) => event.type !== 'sorted').length;
 			this.play();
 		};
 
@@ -87,7 +92,7 @@ export class VisualizerEngine {
 	}
 
 	play() {
-		if (this.stepIndex >= this.trace.length) return;
+		if (this.operationIndex >= this.totalOperations) return;
 		this.isPlaying = true;
 		this.loop();
 	}
@@ -102,6 +107,8 @@ export class VisualizerEngine {
 		this.pause();
 		this.trace = [];
 		this.stepIndex = 0;
+		this.operationIndex = 0;
+		this.totalOperations = 0;
 		this.activeIndices = [];
 		this.sortedIndices = new SvelteSet();
 		this.eventType = null;
@@ -113,6 +120,7 @@ export class VisualizerEngine {
 	resetPlayback() {
 		this.pause();
 		this.stepIndex = 0;
+		this.operationIndex = 0;
 		this.activeIndices = [];
 		this.sortedIndices = new SvelteSet();
 		this.eventType = null;
@@ -125,30 +133,47 @@ export class VisualizerEngine {
 	 */
 	stepBack() {
 		this.pause();
-		if (this.stepIndex <= 0) return;
+		if (this.operationIndex <= 0) return;
 
-		const targetIndex = this.stepIndex - 1;
+		const targetOperationIndex = this.operationIndex - 1;
+		let operationalEventsFound = 0;
+		let targetStepIndex = 0; // The raw index in the trace we need to play up to.
 
-		// 1. Reset Data
-		this.array = [...this.initialArray];
-		this.sortedIndices = new SvelteSet();
-
-		// 2. Replay Logic (Data only) up to target - 1
-		for (let i = 0; i < targetIndex; i++) {
-			this.applyEventData(this.trace[i]);
+		// Find the raw trace index that corresponds to the end of the previous operational step.
+		if (targetOperationIndex > 0) {
+			for (let i = 0; i < this.trace.length; i++) {
+				if (this.trace[i].type !== 'sorted') {
+					operationalEventsFound++;
+				}
+				if (operationalEventsFound === targetOperationIndex) {
+					targetStepIndex = i + 1;
+					break;
+				}
+			}
 		}
 
-		// 3. Set Visuals for the target step (the one we are stepping "into")
-		// If we go back to 0, clear visuals.
-		if (targetIndex > 0) {
-			const prevEvent = this.trace[targetIndex - 1];
-			this.applyEventVisuals(prevEvent);
+		// Reset and replay up to the target raw index
+		this.array = [...this.initialArray];
+		this.sortedIndices = new SvelteSet();
+		this.stepIndex = 0;
+		this.operationIndex = 0;
+
+		for (let i = 0; i < targetStepIndex; i++) {
+			const event = this.trace[i];
+			this.applyEventData(event);
+			if (event.type !== 'sorted') {
+				this.operationIndex++;
+			}
+		}
+		this.stepIndex = targetStepIndex;
+
+		// Set visuals for the state we've just reverted to
+		if (targetStepIndex > 0) {
+			this.applyEventVisuals(this.trace[targetStepIndex - 1]);
 		} else {
 			this.activeIndices = [];
 			this.eventType = null;
 		}
-
-		this.stepIndex = targetIndex;
 	}
 
 	/**
@@ -156,7 +181,7 @@ export class VisualizerEngine {
 	 */
 	stepForward() {
 		this.pause();
-		if (this.stepIndex >= this.trace.length) return;
+		if (this.operationIndex >= this.totalOperations) return;
 		this.step();
 	}
 
@@ -175,10 +200,12 @@ export class VisualizerEngine {
 
 			// Execute batch
 			for (let i = 0; i < opsPerFrame; i++) {
-				if (this.stepIndex >= this.trace.length) {
+				if (this.operationIndex >= this.totalOperations) {
 					this.pause();
 					this.activeIndices = [];
 					this.eventType = null;
+					// Final pass to ensure all bars are green
+					this.trace.filter((e) => e.type === 'sorted').forEach((e) => this.applyEventData(e));
 					return;
 				}
 				this.step();
@@ -198,13 +225,24 @@ export class VisualizerEngine {
 	}
 
 	/**
-	 * Executes one step of the trace, updating both data and visuals
+	 * Executes one OPERATIONAL step. Processes one operational event (compare, swap, etc.)
+	 * and any subsequent 'sorted' events that follow it, making 'sorted' events instant.
 	 */
-	step() {
-		const event = this.trace[this.stepIndex];
-		this.applyEventVisuals(event);
-		this.applyEventData(event);
-		this.stepIndex++;
+	private step() {
+		if (this.stepIndex >= this.trace.length) return;
+
+		let operationalEventProcessed = false;
+		while (this.stepIndex < this.trace.length && !operationalEventProcessed) {
+			const event = this.trace[this.stepIndex];
+			this.applyEventVisuals(event);
+			this.applyEventData(event);
+
+			if (event.type !== 'sorted') {
+				this.operationIndex++;
+				operationalEventProcessed = true;
+			}
+			this.stepIndex++;
+		}
 	}
 
 	/**
