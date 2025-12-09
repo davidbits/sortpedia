@@ -38,3 +38,6 @@ export const adaptiveExplanation =
 	'Performance improves significantly on data that is already partially sorted.';
 export const inPlaceExplanation =
 	'Requires a constant amount of extra memory space (O(1)), regardless of input size.';
+export const stableExplanation = 'Preserves the relative order of elements with equal values.';
+export const unstableExplanation =
+	'Does not guarantee the relative order of elements with equal values.';

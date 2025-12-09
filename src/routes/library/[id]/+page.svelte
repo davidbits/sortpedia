@@ -4,7 +4,9 @@
 		getAlgorithm,
 		categoryExplanations,
 		adaptiveExplanation,
-		inPlaceExplanation
+		inPlaceExplanation,
+		stableExplanation,
+		unstableExplanation
 	} from '$lib/algorithms';
 	import { resolve } from '$app/paths';
 	import { VisualizerEngine } from '$lib/stores/visualizer.svelte';
@@ -71,135 +73,208 @@
 				Back to Library
 			</a>
 
-			<div class="flex flex-col gap-6 md:flex-row md:items-start md:justify-between md:gap-8">
-				<div class="min-w-0 flex-1">
+			<div class="mt-2">
+				<!-- Name and Tags grouped together -->
+				<div class="flex flex-wrap items-center gap-x-6 gap-y-4">
 					<h1 class="text-surface-900 text-4xl font-extrabold tracking-tight sm:text-5xl">
 						{algorithm.name}
 					</h1>
-					<p class="text-surface-800 mt-4 text-xl leading-relaxed">
-						<TextWithLatex text={algorithm.details.summary} />
-					</p>
-				</div>
-				<div class="flex flex-shrink-0 flex-wrap items-center gap-2">
-					<!-- Category Tag with Tooltip -->
-					<div class="group relative">
-						<span
-							class="bg-primary/10 text-primary cursor-help rounded-full px-4 py-1.5 text-sm font-bold"
-						>
-							{algorithm.category} Sort
-						</span>
-						<div
-							class="pointer-events-none absolute bottom-full left-0 z-10 mb-2 w-max max-w-[80vw] rounded-md bg-surface-900 px-3 py-2 text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 sm:left-1/2 sm:max-w-xs sm:-translate-x-1/2"
-						>
-							{categoryExplanations[algorithm.category]}
+
+					<!-- spacer to push tags to the right -->
+					<div class="grow"></div>
+
+					<div class="flex shrink-0 flex-wrap items-center gap-2">
+						<!-- Category Tag -->
+						<div class="group relative">
+							<span
+								class="bg-primary/10 text-primary cursor-help rounded-full px-4 py-1.5 text-sm font-bold"
+							>
+								{algorithm.category} Sort
+							</span>
 							<div
-								class="absolute left-3 top-full border-4 border-x-transparent border-b-transparent border-t-surface-900 sm:left-1/2 sm:-translate-x-1/2"
-							></div>
+								class="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-40 -translate-x-1/2 whitespace-normal rounded-md bg-surface-900 px-3 py-2 text-center text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 sm:max-w-xs"
+							>
+								{categoryExplanations[algorithm.category]}
+								<div
+									class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-x-transparent border-b-transparent border-t-surface-900"
+								></div>
+							</div>
 						</div>
+
+						<!-- Adaptive Tag -->
+						{#if algorithm.adaptive}
+							<div class="group relative">
+								<span
+									class="bg-indigo-100 text-indigo-800 cursor-help rounded-full px-4 py-1.5 text-sm font-bold"
+								>
+									Adaptive
+								</span>
+								<div
+									class="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-40 -translate-x-1/2 whitespace-normal rounded-md bg-surface-900 px-3 py-2 text-center text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 sm:max-w-xs"
+								>
+									{adaptiveExplanation}
+									<div
+										class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-x-transparent border-b-transparent border-t-surface-900"
+									></div>
+								</div>
+							</div>
+						{/if}
+
+						<!-- In-Place Tag -->
+						{#if algorithm.inPlace}
+							<div class="group relative">
+								<span
+									class="bg-teal-100 text-teal-800 cursor-help rounded-full px-4 py-1.5 text-sm font-bold"
+								>
+									In-Place
+								</span>
+								<div
+									class="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-40 -translate-x-1/2 whitespace-normal rounded-md bg-surface-900 px-3 py-2 text-center text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 sm:max-w-xs"
+								>
+									{inPlaceExplanation}
+									<div
+										class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-x-transparent border-b-transparent border-t-surface-900"
+									></div>
+								</div>
+							</div>
+						{:else}
+							<div class="group relative">
+								<span
+									class="bg-orange-100 text-orange-800 cursor-help rounded-full px-4 py-1.5 text-sm font-bold"
+								>
+									Out-of-Place
+								</span>
+								<div
+									class="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-40 -translate-x-1/2 whitespace-normal rounded-md bg-surface-900 px-3 py-2 text-center text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 sm:max-w-xs"
+								>
+									Requires auxiliary memory proportional to the input size (O(n)).
+									<div
+										class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-x-transparent border-b-transparent border-t-surface-900"
+									></div>
+								</div>
+							</div>
+						{/if}
+
+						<!-- Stability Tag -->
+						{#if algorithm.stable}
+							<div class="group relative">
+								<span
+									class="bg-green-100 text-green-800 cursor-help rounded-full px-4 py-1.5 text-sm font-bold"
+								>
+									Stable
+								</span>
+								<div
+									class="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-40 -translate-x-1/2 whitespace-normal rounded-md bg-surface-900 px-3 py-2 text-center text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 sm:max-w-xs"
+								>
+									{stableExplanation}
+									<div
+										class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-x-transparent border-b-transparent border-t-surface-900"
+									></div>
+								</div>
+							</div>
+						{:else}
+							<div class="group relative">
+								<span
+									class="bg-red-100 text-red-800 cursor-help rounded-full px-4 py-1.5 text-sm font-bold"
+								>
+									Unstable
+								</span>
+								<div
+									class="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-40 -translate-x-1/2 whitespace-normal rounded-md bg-surface-900 px-3 py-2 text-center text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 sm:max-w-xs"
+								>
+									{unstableExplanation}
+									<div
+										class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-x-transparent border-b-transparent border-t-surface-900"
+									></div>
+								</div>
+							</div>
+						{/if}
 					</div>
-
-					<!-- Adaptive Tag -->
-					{#if algorithm.adaptive}
-						<div class="group relative">
-							<span
-								class="bg-indigo-100 text-indigo-800 cursor-help rounded-full px-4 py-1.5 text-sm font-bold"
-							>
-								Adaptive
-							</span>
-							<div
-								class="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-max max-w-[200px] -translate-x-1/2 rounded-md bg-surface-900 px-3 py-2 text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover:opacity-100"
-							>
-								{adaptiveExplanation}
-								<div
-									class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-x-transparent border-b-transparent border-t-surface-900"
-								></div>
-							</div>
-						</div>
-					{/if}
-
-					<!-- In-Place Tag -->
-					{#if algorithm.inPlace}
-						<div class="group relative">
-							<span
-								class="bg-teal-100 text-teal-800 cursor-help rounded-full px-4 py-1.5 text-sm font-bold"
-							>
-								In-Place
-							</span>
-							<div
-								class="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-max max-w-[200px] -translate-x-1/2 rounded-md bg-surface-900 px-3 py-2 text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover:opacity-100"
-							>
-								{inPlaceExplanation}
-								<div
-									class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-x-transparent border-b-transparent border-t-surface-900"
-								></div>
-							</div>
-						</div>
-					{:else}
-						<div class="group relative">
-							<span
-								class="bg-orange-100 text-orange-800 cursor-help rounded-full px-4 py-1.5 text-sm font-bold"
-							>
-								Out-of-Place
-							</span>
-							<div
-								class="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-max max-w-[200px] -translate-x-1/2 rounded-md bg-surface-900 px-3 py-2 text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover:opacity-100"
-							>
-								Requires auxiliary memory proportional to the input size (O(n)).
-								<div
-									class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-x-transparent border-b-transparent border-t-surface-900"
-								></div>
-							</div>
-						</div>
-					{/if}
-
-					<!-- Stability Tag with Tooltip -->
-					{#if algorithm.stable}
-						<div class="group relative">
-							<span
-								class="bg-green-100 text-green-800 cursor-help rounded-full px-4 py-1.5 text-sm font-bold"
-							>
-								Stable
-							</span>
-							<div
-								class="pointer-events-none absolute bottom-full left-0 z-10 mb-2 w-max max-w-[80vw] rounded-md bg-surface-900 px-3 py-2 text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 sm:left-1/2 sm:max-w-xs sm:-translate-x-1/2"
-							>
-								Preserves the relative order of elements with equal values.
-								<div
-									class="absolute left-3 top-full border-4 border-x-transparent border-b-transparent border-t-surface-900 sm:left-1/2 sm:-translate-x-1/2"
-								></div>
-							</div>
-						</div>
-					{:else}
-						<div class="group relative">
-							<span
-								class="bg-red-100 text-red-800 cursor-help rounded-full px-4 py-1.5 text-sm font-bold"
-							>
-								Unstable
-							</span>
-							<div
-								class="pointer-events-none absolute bottom-full left-0 z-10 mb-2 w-max max-w-[80vw] rounded-md bg-surface-900 px-3 py-2 text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 sm:left-1/2 sm:max-w-xs sm:-translate-x-1/2"
-							>
-								Does not guarantee the relative order of elements with equal values.
-								<div
-									class="absolute left-3 top-full border-4 border-x-transparent border-b-transparent border-t-surface-900 sm:left-1/2 sm:-translate-x-1/2"
-								></div>
-							</div>
-						</div>
-					{/if}
 				</div>
+
+				<!-- Summary consumes full width below -->
+				<p class="text-surface-800 mt-6 text-xl leading-relaxed">
+					<TextWithLatex text={algorithm.details.summary} />
+				</p>
 			</div>
 		</div>
 
 		<div class="grid gap-12 lg:grid-cols-3">
+			<!--Sidebar / Mini Visualizer -->
+			<div class="lg:col-span-1 lg:col-start-3">
+				<div class="sticky top-24 space-y-6">
+					<div class="bg-surface-50 border-surface-200 overflow-hidden rounded-xl border shadow-sm">
+						<div class="border-surface-200 border-b bg-white p-4">
+							<h3 class="font-bold">Live Demo</h3>
+							<p class="text-xs text-gray-500">{DEMO_SIZE} elements • 6x Speed</p>
+						</div>
+
+						<div class="bg-surface-100 h-48 p-4">
+							<VisualizerDisplay engine={demoEngine} />
+						</div>
+
+						<div class="grid grid-cols-2 gap-2 bg-white p-4">
+							{#if demoEngine.isPlaying}
+								<!-- Running State: Stop + Reset -->
+								<button
+									onclick={() => demoEngine.pause()}
+									class="bg-vis-compare hover:brightness-90 flex items-center justify-center gap-2 rounded-md py-2 text-sm font-medium text-white transition-colors active:scale-95"
+								>
+									<Pause size={16} />
+									Stop
+								</button>
+								<button
+									onclick={() => demoEngine.resetPlayback()}
+									class="bg-surface-200 hover:bg-surface-300 flex items-center justify-center gap-2 rounded-md py-2 px-3 text-sm font-medium transition-colors active:scale-95"
+								>
+									<RotateCcw size={14} />
+									Reset
+								</button>
+							{:else}
+								<!-- Idle State: Start + Shuffle -->
+								<button
+									onclick={runDemo}
+									class="bg-primary hover:bg-primary-dark flex items-center justify-center gap-2 rounded-md py-2 text-sm font-medium text-white transition-colors active:scale-95"
+								>
+									<Play size={16} />
+									Start
+								</button>
+								<button
+									onclick={() => demoEngine.generateArray(DEMO_SIZE)}
+									class="bg-surface-200 hover:bg-surface-300 flex items-center justify-center gap-2 rounded-md py-2 px-3 text-sm font-medium transition-colors active:scale-95"
+									aria-label="Shuffle"
+								>
+									<Shuffle size={14} />
+									Shuffle
+								</button>
+							{/if}
+						</div>
+					</div>
+
+					{#if algorithm.details.funFacts && algorithm.details.funFacts.length > 0}
+						<div class="bg-primary/5 border-primary/10 rounded-xl border p-6">
+							<h4 class="text-primary mb-3 font-bold">Did you know?</h4>
+							<ul class="text-surface-800 list-inside list-disc space-y-2 text-sm">
+								{#each algorithm.details.funFacts as fact (fact)}
+									<li>
+										<TextWithLatex text={fact} />
+									</li>
+								{/each}
+							</ul>
+						</div>
+					{/if}
+				</div>
+			</div>
+
 			<!-- Main Content Column -->
-			<div class="min-w-0 space-y-12 lg:col-span-2">
+			<div class="min-w-0 space-y-12 lg:col-span-2 lg:col-start-1 lg:row-start-1">
 				<!-- How it works -->
 				<section>
 					<h2 class="text-surface-900 mb-6 text-2xl font-bold">How it Works</h2>
 					<ul class="space-y-4">
 						{#each algorithm.details.steps as step (step)}
 							<li class="flex gap-4">
-								<div class="bg-surface-200 mt-1.5 h-2 w-2 flex-shrink-0 rounded-full"></div>
+								<div class="bg-surface-200 mt-1.5 h-2 w-2 shrink-0 rounded-full"></div>
 								<p class="text-surface-800 leading-relaxed"><TextWithLatex text={step} /></p>
 							</li>
 						{/each}
@@ -307,72 +382,6 @@
 						filename={`${algorithm.id}.js`}
 					/>
 				</section>
-			</div>
-
-			<!-- Sidebar / Mini Visualizer -->
-			<div class="lg:col-span-1">
-				<div class="sticky top-24 space-y-6">
-					<div class="bg-surface-50 border-surface-200 overflow-hidden rounded-xl border shadow-sm">
-						<div class="border-surface-200 border-b bg-white p-4">
-							<h3 class="font-bold">Live Demo</h3>
-							<p class="text-xs text-gray-500">{DEMO_SIZE} elements • 6x Speed</p>
-						</div>
-
-						<div class="bg-surface-100 h-48 p-4">
-							<VisualizerDisplay engine={demoEngine} />
-						</div>
-
-						<div class="grid grid-cols-2 gap-2 bg-white p-4">
-							{#if demoEngine.isPlaying}
-								<!-- Running State: Stop + Reset -->
-								<button
-									onclick={() => demoEngine.pause()}
-									class="bg-vis-compare hover:brightness-90 flex items-center justify-center gap-2 rounded-md py-2 text-sm font-medium text-white transition-colors active:scale-95"
-								>
-									<Pause size={16} />
-									Stop
-								</button>
-								<button
-									onclick={() => demoEngine.resetPlayback()}
-									class="bg-surface-200 hover:bg-surface-300 flex items-center justify-center gap-2 rounded-md py-2 px-3 text-sm font-medium transition-colors active:scale-95"
-								>
-									<RotateCcw size={14} />
-									Reset
-								</button>
-							{:else}
-								<!-- Idle State: Start + Shuffle -->
-								<button
-									onclick={runDemo}
-									class="bg-primary hover:bg-primary-dark flex items-center justify-center gap-2 rounded-md py-2 text-sm font-medium text-white transition-colors active:scale-95"
-								>
-									<Play size={16} />
-									Start
-								</button>
-								<button
-									onclick={() => demoEngine.generateArray(DEMO_SIZE)}
-									class="bg-surface-200 hover:bg-surface-300 flex items-center justify-center gap-2 rounded-md py-2 px-3 text-sm font-medium transition-colors active:scale-95"
-									aria-label="Shuffle"
-								>
-									<Shuffle size={14} />
-									Shuffle
-								</button>
-							{/if}
-						</div>
-					</div>
-
-					{#if algorithm.details.funFacts && algorithm.details.funFacts.length > 0}
-						<div class="bg-primary/5 border-primary/10 rounded-xl border p-6">
-							<h4 class="text-primary mb-3 font-bold">Did you know?</h4>
-							<ul class="text-surface-800 list-inside list-disc space-y-2 text-sm">
-								{#each algorithm.details.funFacts as fact (fact)}
-									<li>
-										<TextWithLatex text={fact} />
-									</li>
-								{/each}
-							</ul>
-						</div>
-					{/if}
-				</div>
 			</div>
 		</div>
 	</article>

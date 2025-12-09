@@ -3,7 +3,9 @@
 		algorithms,
 		categoryExplanations,
 		adaptiveExplanation,
-		inPlaceExplanation
+		inPlaceExplanation,
+		stableExplanation,
+		unstableExplanation
 	} from '$lib/algorithms';
 	import { resolve } from '$app/paths';
 	import { fade } from 'svelte/transition';
@@ -47,11 +49,11 @@
 								{algo.category}
 							</span>
 							<div
-								class="pointer-events-none absolute bottom-full left-0 z-10 mb-2 w-max max-w-[80vw] rounded-md bg-surface-900 px-3 py-2 text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover/tooltip:opacity-100 sm:left-1/2 sm:max-w-xs sm:-translate-x-1/2"
+								class="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-40 -translate-x-1/2 whitespace-normal rounded-md bg-surface-900 px-3 py-2 text-center text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover/tooltip:opacity-100 sm:max-w-xs"
 							>
 								{categoryExplanations[algo.category]}
 								<div
-									class="absolute left-3 top-full border-4 border-x-transparent border-b-transparent border-t-surface-900 sm:left-1/2 sm:-translate-x-1/2"
+									class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-x-transparent border-b-transparent border-t-surface-900"
 								></div>
 							</div>
 						</div>
@@ -65,7 +67,7 @@
 									Adaptive
 								</span>
 								<div
-									class="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-max max-w-[200px] -translate-x-1/2 rounded-md bg-surface-900 px-3 py-2 text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover/tooltip:opacity-100"
+									class="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-40 -translate-x-1/2 whitespace-normal rounded-md bg-surface-900 px-3 py-2 text-center text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover/tooltip:opacity-100 sm:max-w-xs"
 								>
 									{adaptiveExplanation}
 									<div
@@ -84,7 +86,7 @@
 									In-Place
 								</span>
 								<div
-									class="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-max max-w-[200px] -translate-x-1/2 rounded-md bg-surface-900 px-3 py-2 text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover/tooltip:opacity-100"
+									class="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-40 -translate-x-1/2 whitespace-normal rounded-md bg-surface-900 px-3 py-2 text-center text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover/tooltip:opacity-100 sm:max-w-xs"
 								>
 									{inPlaceExplanation}
 									<div
@@ -103,11 +105,11 @@
 									Stable
 								</span>
 								<div
-									class="pointer-events-none absolute bottom-full left-0 z-10 mb-2 w-max max-w-[80vw] rounded-md bg-surface-900 px-3 py-2 text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover/tooltip:opacity-100 sm:left-1/2 sm:max-w-xs sm:-translate-x-1/2"
+									class="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-40 -translate-x-1/2 whitespace-normal rounded-md bg-surface-900 px-3 py-2 text-center text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover/tooltip:opacity-100 sm:max-w-xs"
 								>
-									Preserves the relative order of elements with equal values.
+									{stableExplanation}
 									<div
-										class="absolute left-3 top-full border-4 border-x-transparent border-b-transparent border-t-surface-900 sm:left-1/2 sm:-translate-x-1/2"
+										class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-x-transparent border-b-transparent border-t-surface-900"
 									></div>
 								</div>
 							</div>
@@ -119,11 +121,11 @@
 									Unstable
 								</span>
 								<div
-									class="pointer-events-none absolute bottom-full left-0 z-10 mb-2 w-max max-w-[80vw] rounded-md bg-surface-900 px-3 py-2 text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover/tooltip:opacity-100 sm:left-1/2 sm:max-w-xs sm:-translate-x-1/2"
+									class="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-40 -translate-x-1/2 whitespace-normal rounded-md bg-surface-900 px-3 py-2 text-center text-xs font-medium text-surface-50 opacity-0 shadow-lg transition-opacity group-hover/tooltip:opacity-100 sm:max-w-xs"
 								>
-									Does not guarantee the relative order of elements with equal values.
+									{unstableExplanation}
 									<div
-										class="absolute left-3 top-full border-4 border-x-transparent border-b-transparent border-t-surface-900 sm:left-1/2 sm:-translate-x-1/2"
+										class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-x-transparent border-b-transparent border-t-surface-900"
 									></div>
 								</div>
 							</div>
