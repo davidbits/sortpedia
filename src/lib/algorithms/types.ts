@@ -11,7 +11,8 @@ export interface AlgorithmInfo {
 		| 'Divide and Conquer'
 		| 'Randomized'
 		| 'Hybrid'
-		| 'Tree';
+		| 'Tree'
+		| 'Heap';
 	complexity: {
 		best: string;
 		average: string;

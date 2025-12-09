@@ -30,7 +30,8 @@ export const categoryExplanations = {
 		'Uses random choices (like pivot selection) to reduce the probability of worst-case performance.',
 	Hybrid:
 		'Combines two or more algorithms to leverage their specific strengths for different data sizes.',
-	Tree: 'Constructs a tree data structure to organize elements, then traverses it to produce a sorted sequence.'
+	Tree: 'Constructs a tree data structure to organize elements, then traverses it to produce a sorted sequence.',
+	Heap: 'Uses a heap data structure to efficiently find and extract elements in sorted order.'
 };
 
 export const adaptiveExplanation =
