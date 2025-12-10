@@ -40,11 +40,45 @@
 			{visualizer.currentStepLabel}
 		</div>
 
-		<VisualizerDisplay engine={visualizer} showStats={true} />
+		<VisualizerDisplay engine={visualizer} />
 	</div>
 
 	<!-- Controls Panel -->
 	<div class="bg-surface-50 border-surface-200 flex flex-col gap-6 rounded-xl border p-6 shadow-sm">
+		<!-- Statistics Dashboard -->
+		<div class="bg-white rounded-lg border border-surface-200 p-4 shadow-sm">
+			<h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Statistics</h3>
+			<div class="grid grid-cols-2 gap-4">
+				<div>
+					<span class="text-xs text-gray-500 block">Status</span>
+					<span
+						class="font-mono text-sm font-bold {visualizer.isPlaying
+							? 'text-primary'
+							: 'text-gray-700'}"
+					>
+						{visualizer.isPlaying ? 'Running' : 'Idle'}
+					</span>
+				</div>
+				<div>
+					<span class="text-xs text-gray-500 block">Operations</span>
+					<span class="font-mono text-sm font-bold text-gray-900">
+						{visualizer.operationIndex}
+						<span class="text-gray-400 font-normal">/ {visualizer.totalOperations}</span>
+					</span>
+				</div>
+			</div>
+
+			<!-- Progress Bar -->
+			<div class="mt-3 h-1.5 w-full bg-surface-100 rounded-full overflow-hidden">
+				<div
+					class="h-full bg-primary transition-all duration-200"
+					style="width: {visualizer.totalOperations > 0
+						? (visualizer.operationIndex / visualizer.totalOperations) * 100
+						: 0}%"
+				></div>
+			</div>
+		</div>
+
 		<h2 class="text-xl font-bold">Controls</h2>
 
 		<div class="flex flex-col gap-2">
