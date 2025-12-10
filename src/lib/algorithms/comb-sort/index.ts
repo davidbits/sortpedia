@@ -14,18 +14,48 @@ export default function* (arr: number[]): Generator<SortEvent> {
 		const newGap = Math.floor((gap * 10) / 13);
 		gap = newGap < 1 ? 1 : newGap;
 
+		// Informational event about the gap change
+		yield {
+			type: 'info',
+			text: `Shrinking gap to ${gap}.`
+		};
+
 		// Initialize swapped as false for this pass
 		swapped = false;
 
 		// Perform a gapped comparison pass, similar to Bubble Sort
 		for (let i = 0; i < n - gap; i++) {
 			const j = i + gap;
-			yield { type: 'compare', indices: [i, j] };
+
+			// Comparison Event
+			yield {
+				type: 'compare',
+				text: `Comparing elements at index ${i} and ${j} (gap: ${gap})`,
+				highlights: {
+					[i]: 'bg-vis-compare',
+					[j]: 'bg-vis-compare'
+				}
+			};
 
 			if (arr[i] > arr[j]) {
 				// Swap elements
-				[arr[i], arr[j]] = [arr[j], arr[i]];
-				yield { type: 'swap', indices: [i, j] };
+				const valI = arr[i];
+				const valJ = arr[j];
+				[arr[i], arr[j]] = [valJ, valI];
+
+				// Swap Event
+				yield {
+					type: 'swap',
+					text: `Swapping ${valI} and ${valJ}`,
+					highlights: {
+						[i]: 'bg-vis-swap',
+						[j]: 'bg-vis-swap'
+					},
+					writes: {
+						[i]: arr[i],
+						[j]: arr[j]
+					}
+				};
 
 				// A swap has occurred
 				swapped = true;
@@ -34,7 +64,10 @@ export default function* (arr: number[]): Generator<SortEvent> {
 	}
 
 	// Final pass to mark all elements as sorted
-	for (let k = 0; k < n; k++) {
-		yield { type: 'sorted', indices: [k] };
-	}
+	const allIndices = Array.from({ length: n }, (_, i) => i);
+	yield {
+		type: 'sorted',
+		text: 'Array is sorted.',
+		sorted: allIndices
+	};
 }

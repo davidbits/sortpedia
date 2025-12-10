@@ -8,17 +8,51 @@ export default function* (arr: number[]): Generator<SortEvent> {
 	for (let i = 0; i < n - 1; i++) {
 		swapped = false;
 		for (let j = 0; j < n - i - 1; j++) {
-			yield { type: 'compare', indices: [j, j + 1] };
+			// Compare Event
+			yield {
+				type: 'compare',
+				text: `Comparing indices ${j} (${arr[j]}) and ${j + 1} (${arr[j + 1]})`,
+				highlights: {
+					[j]: 'bg-vis-compare',
+					[j + 1]: 'bg-vis-compare'
+				}
+			};
+
 			if (arr[j] > arr[j + 1]) {
+				// Swap Logic
 				[arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
-				yield { type: 'swap', indices: [j, j + 1] };
 				swapped = true;
+
+				// Swap Event
+				yield {
+					type: 'swap',
+					text: `Swapping ${arr[j + 1]} and ${arr[j]}`,
+					highlights: {
+						[j]: 'bg-vis-swap',
+						[j + 1]: 'bg-vis-swap'
+					},
+					writes: {
+						[j]: arr[j],
+						[j + 1]: arr[j + 1]
+					}
+				};
 			}
 		}
 		// Mark end element as sorted
-		yield { type: 'sorted', indices: [n - i - 1] };
+		yield {
+			type: 'sorted',
+			text: `Index ${n - i - 1} is sorted`,
+			sorted: [n - i - 1]
+		};
+
 		if (!swapped) break;
 	}
 	// Mark remaining as sorted
-	for (let i = 0; i < n; i++) yield { type: 'sorted', indices: [i] };
+	const remaining = [];
+	for (let i = 0; i < n; i++) remaining.push(i);
+	yield {
+		type: 'sorted',
+		text: 'Array is sorted',
+		sorted: remaining
+	};
 }

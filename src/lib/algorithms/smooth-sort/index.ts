@@ -29,6 +29,18 @@ function pntz(p: bigint): number {
 function* cycle(arr: number[], arIndices: number[], n: number): Generator<SortEvent> {
 	if (n < 2) return;
 
+	// Visual cue for the cycle operation
+	const cycleHighlights: Record<number, string> = {};
+	for (let i = 0; i < n; i++) {
+		cycleHighlights[arIndices[i]] = 'bg-blue-600'; // Highlight all nodes in the cycle
+	}
+
+	yield {
+		type: 'cycle-start',
+		text: `Rotating ${n} elements in the heap structure.`,
+		highlights: cycleHighlights
+	};
+
 	// Visualizing the rotation as a series of writes (copies),
 	// which accurately reflects the algorithm's memory operations.
 	const temp = arr[arIndices[0]];
@@ -36,12 +48,33 @@ function* cycle(arr: number[], arIndices: number[], n: number): Generator<SortEv
 	// We do not visualize reading into 'temp', but we visualize writing FROM temp later.
 	for (let i = 0; i < n - 1; i++) {
 		const sourceVal = arr[arIndices[i + 1]];
-		yield { type: 'write', indices: [arIndices[i]], value: sourceVal };
-		arr[arIndices[i]] = sourceVal;
+		const targetIdx = arIndices[i];
+
+		arr[targetIdx] = sourceVal;
+		yield {
+			type: 'write',
+			text: `Moving ${sourceVal} to index ${targetIdx}.`,
+			highlights: {
+				[targetIdx]: 'bg-vis-write'
+			},
+			writes: {
+				[targetIdx]: sourceVal
+			}
+		};
 	}
 
-	yield { type: 'write', indices: [arIndices[n - 1]], value: temp };
-	arr[arIndices[n - 1]] = temp;
+	const finalIdx = arIndices[n - 1];
+	arr[finalIdx] = temp;
+	yield {
+		type: 'write',
+		text: `Completing cycle: Moving temp value ${temp} to index ${finalIdx}.`,
+		highlights: {
+			[finalIdx]: 'bg-vis-write'
+		},
+		writes: {
+			[finalIdx]: temp
+		}
+	};
 }
 
 /**
@@ -68,15 +101,39 @@ function* sift(
 		// Logic: if (val[root] >= val[lf] && val[root] >= val[rt]) break;
 		// Expanded to yield comparisons sequentially and respect short-circuiting.
 
-		yield { type: 'compare', indices: [buffer[0], lf] };
+		yield {
+			type: 'compare',
+			text: `Sifting: Checking root ${arr[buffer[0]]} vs left child ${arr[lf]}`,
+			highlights: {
+				[buffer[0]]: 'bg-purple-500', // Root
+				[lf]: 'bg-vis-compare'
+			}
+		};
+
 		if (arr[buffer[0]] >= arr[lf]) {
-			yield { type: 'compare', indices: [buffer[0], rt] };
+			yield {
+				type: 'compare',
+				text: `Sifting: Checking root ${arr[buffer[0]]} vs right child ${arr[rt]}`,
+				highlights: {
+					[buffer[0]]: 'bg-purple-500',
+					[rt]: 'bg-vis-compare'
+				}
+			};
 			if (arr[buffer[0]] >= arr[rt]) {
 				break;
 			}
 		}
 
-		yield { type: 'compare', indices: [lf, rt] };
+		// Comparison between children to decide path
+		yield {
+			type: 'compare',
+			text: `Comparing children: ${arr[lf]} vs ${arr[rt]}`,
+			highlights: {
+				[lf]: 'bg-vis-compare',
+				[rt]: 'bg-vis-compare'
+			}
+		};
+
 		if (arr[lf] >= arr[rt]) {
 			buffer[i++] = lf;
 			head = lf;
@@ -115,7 +172,15 @@ function* trinkle(
 	while (p !== 1n) {
 		stepson = head - lp[pshift];
 
-		yield { type: 'compare', indices: [stepson, buffer[0]] };
+		yield {
+			type: 'compare',
+			text: `Trinkle: Comparing forest root ${arr[head]} with previous root ${arr[stepson]}`,
+			highlights: {
+				[head]: 'bg-purple-500',
+				[stepson]: 'bg-vis-compare'
+			}
+		};
+
 		if (arr[stepson] <= arr[buffer[0]]) {
 			break;
 		}
@@ -128,11 +193,26 @@ function* trinkle(
 			// Expanded for visualization fidelity.
 			let shouldBreak = false;
 
-			yield { type: 'compare', indices: [rt, stepson] };
+			yield {
+				type: 'compare',
+				text: `Trinkle: Checking children vs stepson`,
+				highlights: {
+					[rt]: 'bg-vis-compare',
+					[stepson]: 'bg-vis-compare'
+				}
+			};
+
 			if (arr[rt] >= arr[stepson]) {
 				shouldBreak = true;
 			} else {
-				yield { type: 'compare', indices: [lf, stepson] };
+				yield {
+					type: 'compare',
+					text: `Trinkle: Checking left child vs stepson`,
+					highlights: {
+						[lf]: 'bg-vis-compare',
+						[stepson]: 'bg-vis-compare'
+					}
+				};
 				if (arr[lf] >= arr[stepson]) {
 					shouldBreak = true;
 				}
@@ -165,6 +245,12 @@ function* trinkle(
 export default function* smoothSort(arr: number[]): Generator<SortEvent> {
 	const nel = arr.length;
 	if (nel === 0) return;
+
+	yield {
+		type: 'info',
+		text: 'Starting Smooth Sort: Building Leonardo Heap structure.',
+		highlights: {}
+	};
 
 	// Precompute Leonardo numbers
 	// lp[0]=lp[1]=1. width is treated as 1 unit.
@@ -214,6 +300,12 @@ export default function* smoothSort(arr: number[]): Generator<SortEvent> {
 
 	yield* trinkle(arr, head, p, pshift, false, lp, buffer);
 
+	yield {
+		type: 'info',
+		text: 'Heap construction complete. Dequeuing and sorting.',
+		highlights: {}
+	};
+
 	// Dequeue and Sort
 	while (pshift !== 1 || p !== 1n) {
 		if (pshift <= 1) {
@@ -233,10 +325,17 @@ export default function* smoothSort(arr: number[]): Generator<SortEvent> {
 		head--;
 
 		// Mark the element as sorted as it leaves the heap structure
-		yield { type: 'sorted', indices: [head + 1] };
+		yield {
+			type: 'sorted',
+			text: `Element at index ${head + 1} is sorted.`,
+			sorted: [head + 1]
+		};
 	}
 
 	// The loop finishes when index 0 and 1 are remaining, handle final sorted marks
-	yield { type: 'sorted', indices: [1] };
-	yield { type: 'sorted', indices: [0] };
+	yield {
+		type: 'sorted',
+		text: 'Finished: Array is fully sorted.',
+		sorted: [0, 1]
+	};
 }

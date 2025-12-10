@@ -23,7 +23,13 @@ export default function* (arr: number[]): Generator<SortEvent> {
 	// https://www.geeksforgeeks.org/dsa/tree-sort/
 	const n = arr.length;
 	if (n <= 1) {
-		if (n === 1) yield { type: 'sorted', indices: [0] };
+		if (n === 1) {
+			yield {
+				type: 'sorted',
+				text: 'Single element is already sorted.',
+				sorted: [0]
+			};
+		}
 		return;
 	}
 
@@ -31,17 +37,42 @@ export default function* (arr: number[]): Generator<SortEvent> {
 
 	// --- Phase 1: Build the Binary Search Tree ---
 	// Iterate through the input array and insert each element into the tree.
+	yield {
+		type: 'info',
+		text: 'Phase 1: Building Binary Search Tree.',
+		highlights: {}
+	};
+
 	for (let i = 0; i < n; i++) {
 		const valueToInsert = arr[i];
+		yield {
+			type: 'info',
+			text: `Inserting element ${valueToInsert} (index ${i}) into the tree.`,
+			highlights: {
+				[i]: 'bg-purple-500' // Highlight the element being inserted
+			}
+		};
 		// The insert helper is a generator that yields comparison events.
 		root = yield* insert(root, valueToInsert, i);
 	}
 
 	// --- Phase 2: In-order Traversal and Array Update ---
+	yield {
+		type: 'info',
+		text: 'Phase 2: In-order Traversal. Extracting values back into the array.',
+		highlights: {}
+	};
+
 	// Use an object to pass the sorted index by reference through recursion.
 	const sortedIndexTracker = { index: 0 };
 	// The inorder helper is a generator that yields write and sorted events.
 	yield* inorder(root, arr, sortedIndexTracker);
+
+	yield {
+		type: 'sorted',
+		text: 'Finished: Array is fully sorted.',
+		sorted: Array.from({ length: n }, (_, i) => i) // Ensure all are green
+	};
 }
 
 /**
@@ -63,7 +94,15 @@ function* insert(
 	}
 
 	// Yield a comparison event between the element being inserted and the current node.
-	yield { type: 'compare', indices: [originalIndex, node.originalIndex] };
+	// We use originalIndex to highlight the source of the values in the visual array.
+	yield {
+		type: 'compare',
+		text: `Comparing ${value} with node ${node.value} (from index ${node.originalIndex}).`,
+		highlights: {
+			[originalIndex]: 'bg-purple-500', // Active element being inserted
+			[node.originalIndex]: 'bg-vis-compare' // Current node in tree
+		}
+	};
 
 	// Recur down the tree. Duplicates are placed in the right subtree.
 	if (value < node.value) {
@@ -99,11 +138,20 @@ function* inorder(
 	const valueToWrite = node.value;
 
 	// Overwrite the element at the current sorted position in the array.
+	// We combine the Write and Sorted event into one atomic visual step.
 	arr[targetIndex] = valueToWrite;
-	yield { type: 'write', indices: [targetIndex], value: valueToWrite };
 
-	// Mark this position as sorted.
-	yield { type: 'sorted', indices: [targetIndex] };
+	yield {
+		type: 'write',
+		text: `Traversed node ${valueToWrite}. Writing to sorted index ${targetIndex}.`,
+		highlights: {
+			[targetIndex]: 'bg-vis-sorted'
+		},
+		writes: {
+			[targetIndex]: valueToWrite
+		},
+		sorted: [targetIndex] // Mark as persistently sorted immediately
+	};
 
 	// Increment the sorted position index for the next element.
 	tracker.index++;

@@ -2,12 +2,22 @@ import type { SortEvent } from '../types';
 import { QuantumEntropySource } from './tiny-quantum';
 
 /**
- * Checks if the array is sorted. Yields 'compare' events for visualization.
+ * Checks if the array is sorted. Yields descriptive 'compare' events for visualization.
  */
 function* isSorted(arr: number[]): Generator<SortEvent, boolean> {
 	for (let i = 0; i < arr.length - 1; i++) {
-		yield { type: 'compare', indices: [i, i + 1] };
-		if (arr[i] > arr[i + 1]) {
+		const isOrdered = arr[i] <= arr[i + 1];
+
+		yield {
+			type: 'compare',
+			text: `Checking if ${arr[i]} <= ${arr[i + 1]}... ${isOrdered ? 'Yes' : 'No!'}`,
+			highlights: {
+				[i]: isOrdered ? 'bg-vis-compare' : 'bg-vis-swap',
+				[i + 1]: isOrdered ? 'bg-vis-compare' : 'bg-vis-swap'
+			}
+		};
+
+		if (!isOrdered) {
 			return false; // Found an unsorted pair, the check fails
 		}
 	}
@@ -16,21 +26,41 @@ function* isSorted(arr: number[]): Generator<SortEvent, boolean> {
 
 /**
  * Shuffles the array in-place using the Fisher-Yates algorithm, powered by
- * a quantum source of entropy. Yields 'swap' events to visualize the process.
+ * a quantum source of entropy. Yields descriptive 'swap' events.
  */
 function* quantumShuffle(arr: number[]): Generator<SortEvent> {
 	const n = arr.length;
-	// A single 'shuffle' event to color all bars, indicating the start of the process.
-	yield { type: 'shuffle', indices: Array.from({ length: n }, (_, i) => i) };
+	// A single event to indicate the start of the shuffle process.
+	const initialHighlights: Record<number, string> = {};
+	for (let i = 0; i < n; i++) initialHighlights[i] = 'bg-vis-accent';
+
+	yield {
+		type: 'shuffle-start',
+		text: 'Initiating quantum shuffle...',
+		highlights: initialHighlights
+	};
 
 	if (n > 1) {
 		for (let i = n - 1; i > 0; i--) {
 			// Generate a quantum random index j such that 0 <= j <= i
 			const j = QuantumEntropySource.getInt(0, i);
 
-			// Yield a swap event for visualization before performing the swap
-			yield { type: 'swap', indices: [i, j] };
+			// Perform the swap on the local array first
 			[arr[i], arr[j]] = [arr[j], arr[i]];
+
+			// Yield a single atomic event that updates both data and visuals
+			yield {
+				type: 'swap',
+				text: `Quantumly swapping index ${i} with ${j}.`,
+				highlights: {
+					[i]: 'bg-vis-swap',
+					[j]: 'bg-vis-swap'
+				},
+				writes: {
+					[i]: arr[i],
+					[j]: arr[j]
+				}
+			};
 		}
 	}
 }
@@ -51,16 +81,21 @@ export default function* (arr: number[]): Generator<SortEvent> {
 
 	if (sorted) {
 		// If we reach here, we are in the "correct" universe.
-		// Mark all elements as sorted to turn them green.
-		for (let i = 0; i < arr.length; i++) {
-			yield { type: 'sorted', indices: [i] };
-		}
+		const allIndices = Array.from({ length: arr.length }, (_, i) => i);
+		yield {
+			type: 'sorted',
+			text: 'Success! The quantum superposition collapsed into a sorted state.',
+			sorted: allIndices
+		};
 		return;
 	}
 
 	// If not sorted, destroy the universe.
-	// In our simulation, this means we simply stop the generator.
-	// The visualizer will detect that the run ended without a sorted array
-	// and display the "Failed to sort" message, perfectly simulating the concept.
+	// We add a final event to make the visualization's end state explicit.
+	yield {
+		type: 'fail',
+		text: 'Incorrect universe. Simulation terminated.',
+		highlights: {}
+	};
 	return;
 }

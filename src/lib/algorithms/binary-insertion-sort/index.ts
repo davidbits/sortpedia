@@ -6,10 +6,25 @@ export default function* (arr: number[]): Generator<SortEvent> {
 	const n = arr.length;
 
 	// The first element is effectively sorted.
-	yield { type: 'sorted', indices: [0] };
+	if (n > 0) {
+		yield {
+			type: 'sorted',
+			text: 'Marking the first element as sorted.',
+			sorted: [0]
+		};
+	}
 
 	for (let i = 1; i < n; i++) {
 		const key = arr[i];
+
+		// Announce key selection
+		yield {
+			type: 'select-key',
+			text: `Selecting element ${key} to insert into the sorted section.`,
+			highlights: {
+				[i]: 'bg-purple-500' // Custom color for the 'key'
+			}
+		};
 
 		// 1. Binary Search Phase
 		// We search within the sorted subarray arr[0...i-1].
@@ -20,8 +35,15 @@ export default function* (arr: number[]): Generator<SortEvent> {
 		while (low <= high) {
 			const mid = Math.floor((low + high) / 2);
 
-			// Visual comparison: Comparing the sorted element at 'mid' against our 'key' (at index i)
-			yield { type: 'compare', indices: [mid, i] };
+			// Visual comparison: Comparing the sorted element at 'mid' against our 'key'
+			yield {
+				type: 'compare',
+				text: `Binary Search: Is key ${key} > ${arr[mid]} at index ${mid}?`,
+				highlights: {
+					[mid]: 'bg-vis-compare',
+					[i]: 'bg-purple-500'
+				}
+			};
 
 			if (arr[mid] <= key) {
 				// If equal, we move right to maintain stability (insert after the last duplicate)
@@ -32,27 +54,60 @@ export default function* (arr: number[]): Generator<SortEvent> {
 		}
 
 		// 'low' is now the target insertion index.
+		yield {
+			type: 'target-found',
+			text: `Found insertion point for ${key} at index ${low}.`,
+			highlights: {
+				[i]: 'bg-purple-500', // Keep key highlighted
+				[low]: 'bg-orange-400' // Mark the target spot
+			}
+		};
 
 		// 2. Shifting Phase
 		// Shift all elements from 'low' to 'i-1' one step to the right.
 		// We iterate backwards to overwrite without losing data.
 		for (let j = i - 1; j >= low; j--) {
-			// Visualize the value moving to the right
-			yield { type: 'write', indices: [j + 1], value: arr[j] };
-			arr[j + 1] = arr[j];
+			const valueToShift = arr[j];
+			arr[j + 1] = valueToShift; // Perform the shift
+
+			yield {
+				type: 'write',
+				text: `Shifting ${valueToShift} from ${j} to ${j + 1} to make space.`,
+				highlights: {
+					[j + 1]: 'bg-vis-write',
+					[j]: 'bg-gray-400'
+				},
+				writes: {
+					[j + 1]: valueToShift
+				}
+			};
 		}
 
 		// 3. Insertion Phase
 		// Place the key into the calculated gap
 		if (low !== i) {
-			yield { type: 'write', indices: [low], value: key };
-			arr[low] = key;
+			arr[low] = key; // Perform the insertion
+			yield {
+				type: 'write',
+				text: `Inserting key ${key} at index ${low}.`,
+				highlights: {
+					[low]: 'bg-vis-sorted'
+				},
+				writes: {
+					[low]: key
+				}
+			};
 		}
 
-		// Mark the newly processed index as part of the sorted section
-		// (In reality, 0 to i is now sorted)
+		// Mark the newly processed section as sorted
+		const sortedSoFar = [];
 		for (let k = 0; k <= i; k++) {
-			yield { type: 'sorted', indices: [k] };
+			sortedSoFar.push(k);
 		}
+		yield {
+			type: 'sorted',
+			text: `The section from index 0 to ${i} is now sorted.`,
+			sorted: sortedSoFar
+		};
 	}
 }

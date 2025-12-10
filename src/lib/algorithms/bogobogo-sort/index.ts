@@ -8,7 +8,7 @@ interface OperationCounter {
 const MAX_OPERATIONS = 5000;
 
 /**
- * Shuffles the first n elements of an array in-place.
+ * Shuffles the first n elements of an array and yields a single atomic event.
  */
 function* shuffle(
 	arr: number[],
@@ -17,24 +17,32 @@ function* shuffle(
 ): Generator<SortEvent, void, unknown> {
 	if (counter.ops++ > MAX_OPERATIONS) return;
 
-	const indicesToShuffle = Array.from({ length: n }, (_, i) => i);
-	yield { type: 'shuffle', indices: indicesToShuffle };
-
+	// Perform the shuffle on the local array first
 	let currentIndex = n;
 	while (currentIndex !== 0) {
 		const randomIndex = Math.floor(Math.random() * currentIndex);
 		currentIndex--;
 		[arr[currentIndex], arr[randomIndex]] = [arr[randomIndex], arr[currentIndex]];
 	}
-	// Sync the main array with the shuffled state
+
+	// Create a map of all writes and highlights for a single, atomic update
+	const writes: Record<number, number> = {};
+	const highlights: Record<number, string> = {};
 	for (let i = 0; i < n; i++) {
-		yield { type: 'write', indices: [i], value: arr[i] };
+		writes[i] = arr[i];
+		highlights[i] = 'bg-vis-accent';
 	}
+
+	yield {
+		type: 'shuffle',
+		text: `Randomly shuffling the first ${n} elements.`,
+		highlights,
+		writes
+	};
 }
 
 /**
  * Recursively sorts the first n elements.
- * Steps 2 & 3 from the documentation.
  */
 function* bogobogoSortInternal(
 	data: number[],
@@ -52,6 +60,8 @@ function* bogobogoSortInternal(
 		while (counter.ops < MAX_OPERATIONS) {
 			const isSublistSorted = yield* isSortedBogobogo(sublist, counter);
 			if (isSublistSorted) break;
+			// This shuffle operates on the sublist, and its events will correctly
+			// show shuffling on the first n-1 elements of the display.
 			yield* shuffle(sublist, sublist.length, counter);
 		}
 		if (counter.ops >= MAX_OPERATIONS) return false;
@@ -60,14 +70,28 @@ function* bogobogoSortInternal(
 		for (let i = 0; i < sublist.length; i++) {
 			if (data[i] !== sublist[i]) {
 				data[i] = sublist[i];
-				yield { type: 'write', indices: [i], value: data[i] };
+				yield {
+					type: 'write',
+					text: `Copying sorted sub-element ${data[i]} to index ${i}.`,
+					highlights: { [i]: 'bg-vis-write' },
+					writes: { [i]: data[i] }
+				};
 			}
 		}
 
 		// Step 3: Check if the nth element is greater than the max of the first n-1.
-		yield { type: 'compare', indices: [n - 1, n - 2] };
+		const isOrdered = data[n - 1] >= data[n - 2];
+		yield {
+			type: 'compare',
+			text: `Is the last element ${data[n - 1]} >= ${data[n - 2]}? ${isOrdered ? 'Yes.' : 'No.'}`,
+			highlights: {
+				[n - 1]: 'bg-vis-compare',
+				[n - 2]: 'bg-vis-compare'
+			}
+		};
 		if (counter.ops++ > MAX_OPERATIONS) return false;
-		if (data[n - 1] >= data[n - 2]) {
+
+		if (isOrdered) {
 			return true; // The first n elements are now sorted
 		}
 
@@ -91,15 +115,34 @@ function* isSortedBogobogo(
 	// Step 1: Make a copy
 	const copy = originalData.slice();
 
+	// Announce the recursive check
+	yield {
+		type: 'recursion-info',
+		text: `Recursively sorting a copy of the first ${n} elements...`,
+		highlights: Object.fromEntries(Array.from({ length: n }, (_, i) => [i, 'bg-purple-300']))
+	};
+
 	// Steps 2 & 3: Sort the copy using the internal recursive sorter
 	const sortedSuccessfully = yield* bogobogoSortInternal(copy, n, counter);
 	if (!sortedSuccessfully) return false;
 
+	yield {
+		type: 'recursion-info',
+		text: `...Finished recursive sort. Now comparing copy to original.`,
+		highlights: {} // Clear purple highlight
+	};
+
 	// Step 4: Check if the "sorted" copy matches the original list
 	for (let i = 0; i < n; i++) {
-		yield { type: 'compare', indices: [i, i] }; // Comparing original[i] to copy[i]
 		if (counter.ops++ > MAX_OPERATIONS) return false;
-		if (originalData[i] !== copy[i]) {
+		const matches = originalData[i] === copy[i];
+		yield {
+			type: 'compare',
+			text: `Is original[${i}] (${originalData[i]}) same as sorted copy[${i}] (${copy[i]})? ${matches ? 'Yes.' : 'No.'}`,
+			highlights: { [i]: 'bg-vis-compare' }
+		};
+
+		if (!matches) {
 			return false; // They don't match, so originalData is not "sorted"
 		}
 	}
@@ -120,9 +163,12 @@ export default function* (arr: number[]): Generator<SortEvent> {
 
 		if (isSorted) {
 			// Success! Mark all elements as sorted.
-			for (let i = 0; i < arr.length; i++) {
-				yield { type: 'sorted', indices: [i] };
-			}
+			const allIndices = Array.from({ length: arr.length }, (_, i) => i);
+			yield {
+				type: 'sorted',
+				text: 'Success! The array is finally sorted.',
+				sorted: allIndices
+			};
 			return;
 		}
 
@@ -130,6 +176,10 @@ export default function* (arr: number[]): Generator<SortEvent> {
 		yield* shuffle(arr, arr.length, counter);
 	}
 
-	// If the loop terminates due to MAX_OPERATIONS, the visualizer will stop,
-	// demonstrating the algorithm's failure to sort in a reasonable time.
+	// If the loop terminates due to MAX_OPERATIONS
+	yield {
+		type: 'fail',
+		text: `Failed to sort after ${MAX_OPERATIONS} operations.`,
+		highlights: {}
+	};
 }

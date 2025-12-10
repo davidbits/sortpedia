@@ -6,15 +6,15 @@ export class VisualizerEngine {
 	array = $state<number[]>([]);
 	trace = $state<SortEvent[]>([]);
 	stepIndex = $state(0); // Raw index in the full event trace
-	operationIndex = $state(0); // Counts only "compare", "swap", "write", etc.
-	totalOperations = $state(0); // The total number of operational events in the trace
+	operationIndex = $state(0); // Counts only "operational" events (filtered by type if needed)
+	totalOperations = $state(0);
 	isPlaying = $state(false);
 	speed = $state(5); // 1-10
 
-	// Active state for coloring bars
-	activeIndices = $state<number[]>([]);
+	// Active visual state
+	activeHighlights = $state<Record<number, string>>({});
+	currentText = $state<string>('Ready to sort');
 	sortedIndices = $state(new SvelteSet<number>());
-	eventType = $state<SortEvent['type'] | null>(null);
 
 	private worker: Worker | null = null;
 	private timer: number | null = null;
@@ -27,35 +27,12 @@ export class VisualizerEngine {
 	// Derived state for the text label
 	get currentStepLabel(): string {
 		// When the trace is finished, check the final state of the array.
-		if (this.operationIndex >= this.totalOperations && this.totalOperations > 0) {
+		/*if (this.operationIndex >= this.totalOperations && this.totalOperations > 0) {
 			// Use an internal check to see if the array is actually sorted.
 			const isActuallySorted = this._isSortedCheck();
 			return isActuallySorted ? 'Sorted!' : 'Failed to sort (max attempts reached)';
-		}
-		if (this.trace.length === 0 || this.stepIndex === 0) return 'Ready to sort';
-
-		// We display the description of the *last executed* step or the *current active* step
-		// depending on whether we are moving. Here we show what just happened/is happening.
-		const event = this.stepIndex > 0 ? this.trace[this.stepIndex - 1] : this.trace[0];
-		if (!event) return 'Starting...';
-
-		const [i, j] = event.indices;
-		switch (event.type) {
-			case 'compare':
-				return `Comparing indices ${i} and ${j}`;
-			case 'swap':
-				return `Swapping values at ${i} and ${j}`;
-			case 'write':
-				return `Overwriting index ${i} with value ${event.value}`;
-			case 'sorted':
-				// This label is almost never seen because sorted events are instant are "merged" with the
-				// prior event which takes label priority.
-				return `Marked index ${i} as sorted`;
-			case 'shuffle':
-				return `Randomly shuffling all elements`;
-			default:
-				return 'Processing...';
-		}
+		}*/
+		return this.currentText;
 	}
 
 	generateArray(size: number) {
@@ -81,6 +58,9 @@ export class VisualizerEngine {
 		this.worker.onmessage = (e: MessageEvent<SortWorkerResponse>) => {
 			const { trace } = e.data;
 			this.trace = trace;
+			// We consider "compare", "swap", "write" as operations.
+			// We can filter out pure "sorted" markers if they don't involve work,
+			// but usually in this new system, every event is a step.
 			this.totalOperations = trace.filter((event) => event.type !== 'sorted').length;
 			this.play();
 		};
@@ -109,9 +89,9 @@ export class VisualizerEngine {
 		this.stepIndex = 0;
 		this.operationIndex = 0;
 		this.totalOperations = 0;
-		this.activeIndices = [];
+		this.activeHighlights = {};
+		this.currentText = 'Ready to sort';
 		this.sortedIndices = new SvelteSet();
-		this.eventType = null;
 		if (this.initialArray.length > 0) {
 			this.array = [...this.initialArray];
 		}
@@ -121,58 +101,40 @@ export class VisualizerEngine {
 		this.pause();
 		this.stepIndex = 0;
 		this.operationIndex = 0;
-		this.activeIndices = [];
+		this.activeHighlights = {};
+		this.currentText = 'Ready to sort';
 		this.sortedIndices = new SvelteSet();
-		this.eventType = null;
 		this.array = [...this.initialArray];
 	}
 
-	/**
-	 * Steps backward by resetting to start and replaying history.
-	 * Efficient enough for N < 500.
-	 */
 	stepBack() {
 		this.pause();
-		if (this.operationIndex <= 0) return;
+		if (this.stepIndex <= 0) return;
 
-		const targetOperationIndex = this.operationIndex - 1;
-		let operationalEventsFound = 0;
-		let targetStepIndex = 0; // The raw index in the trace we need to play up to.
+		// Simple implementation: Reset and replay up to stepIndex - 1
+		// Optimized approaches exist, but this is robust for N < 200
+		const targetStep = this.stepIndex - 1;
 
-		// Find the raw trace index that corresponds to the end of the previous operational step.
-		if (targetOperationIndex > 0) {
-			for (let i = 0; i < this.trace.length; i++) {
-				if (this.trace[i].type !== 'sorted') {
-					operationalEventsFound++;
-				}
-				if (operationalEventsFound === targetOperationIndex) {
-					targetStepIndex = i + 1;
-					break;
-				}
-			}
-		}
-
-		// Reset and replay up to the target raw index
 		this.array = [...this.initialArray];
 		this.sortedIndices = new SvelteSet();
-		this.stepIndex = 0;
 		this.operationIndex = 0;
 
-		for (let i = 0; i < targetStepIndex; i++) {
-			const event = this.trace[i];
-			this.applyEventData(event);
-			if (event.type !== 'sorted') {
-				this.operationIndex++;
-			}
+		// Replay loop
+		for (let i = 0; i < targetStep; i++) {
+			this.applyEventData(this.trace[i]);
+			if (this.trace[i].type !== 'sorted') this.operationIndex++;
 		}
-		this.stepIndex = targetStepIndex;
 
-		// Set visuals for the state we've just reverted to
-		if (targetStepIndex > 0) {
-			this.applyEventVisuals(this.trace[targetStepIndex - 1]);
+		this.stepIndex = targetStep;
+
+		// Apply visuals of the previous step
+		if (targetStep > 0) {
+			const prevEvent = this.trace[targetStep - 1];
+			this.activeHighlights = prevEvent.highlights || {};
+			this.currentText = prevEvent.text;
 		} else {
-			this.activeIndices = [];
-			this.eventType = null;
+			this.activeHighlights = {};
+			this.currentText = 'Ready to sort';
 		}
 	}
 
@@ -181,7 +143,7 @@ export class VisualizerEngine {
 	 */
 	stepForward() {
 		this.pause();
-		if (this.operationIndex >= this.totalOperations) return;
+		if (this.stepIndex >= this.trace.length) return;
 		this.step();
 	}
 
@@ -200,12 +162,9 @@ export class VisualizerEngine {
 
 			// Execute batch
 			for (let i = 0; i < opsPerFrame; i++) {
-				if (this.operationIndex >= this.totalOperations) {
+				if (this.stepIndex >= this.trace.length) {
 					this.pause();
-					this.activeIndices = [];
-					this.eventType = null;
-					// Final pass to ensure all bars are green
-					this.trace.filter((e) => e.type === 'sorted').forEach((e) => this.applyEventData(e));
+					this.activeHighlights = {};
 					return;
 				}
 				this.step();
@@ -231,67 +190,54 @@ export class VisualizerEngine {
 	private step() {
 		if (this.stepIndex >= this.trace.length) return;
 
-		let operationalEventProcessed = false;
-		while (this.stepIndex < this.trace.length && !operationalEventProcessed) {
-			const event = this.trace[this.stepIndex];
-			this.applyEventVisuals(event);
-			this.applyEventData(event);
+		const event = this.trace[this.stepIndex];
 
-			if (event.type !== 'sorted') {
-				this.operationIndex++;
-				operationalEventProcessed = true;
+		// Apply Data
+		this.applyEventData(event);
+
+		// Apply Visuals
+		this.activeHighlights = event.highlights || {};
+		this.currentText = event.text;
+
+		if (event.type !== 'sorted') {
+			this.operationIndex++;
+		}
+		this.stepIndex++;
+	}
+
+	private applyEventData(event: SortEvent) {
+		// Handle writes (swaps, overdubs)
+		if (event.writes) {
+			for (const [indexStr, value] of Object.entries(event.writes)) {
+				const index = parseInt(indexStr);
+				this.array[index] = value;
 			}
-			this.stepIndex++;
+		}
+
+		// Handle persistent sorted marking
+		if (event.sorted) {
+			event.sorted.forEach((idx) => this.sortedIndices.add(idx));
 		}
 	}
 
-	/**
-	 * Internal helper to check if the current array is sorted.
-	 * Does not yield events, for internal use only.
-	 */
 	private _isSortedCheck(): boolean {
 		for (let i = 0; i < this.array.length - 1; i++) {
-			if (this.array[i] > this.array[i + 1]) {
-				return false;
-			}
+			if (this.array[i] > this.array[i + 1]) return false;
 		}
 		return true;
 	}
 
-	private applyEventVisuals(event: SortEvent) {
-		this.activeIndices = event.indices;
-		this.eventType = event.type;
-	}
-
-	private applyEventData(event: SortEvent) {
-		if (event.type === 'swap') {
-			const [i, j] = event.indices;
-			[this.array[i], this.array[j]] = [this.array[j], this.array[i]];
-		} else if (event.type === 'write' && event.value !== undefined) {
-			const [i] = event.indices;
-			this.array[i] = event.value;
-		} else if (event.type === 'sorted') {
-			event.indices.forEach((i) => this.sortedIndices.add(i));
-		}
-	}
-
 	getBarColor(index: number) {
-		if (this.activeIndices.includes(index)) {
-			switch (this.eventType) {
-				case 'compare':
-					return 'bg-vis-compare'; // Yellow
-				case 'swap':
-					return 'bg-vis-swap'; // Red
-				case 'write':
-					return 'bg-vis-write'; // Blue
-				case 'sorted':
-					return 'bg-vis-sorted'; // Green
-				case 'shuffle':
-					return 'bg-vis-accent'; // Purple
-			}
+		// 1. Current Step Highlight takes precedence
+		if (this.activeHighlights[index]) {
+			return this.activeHighlights[index];
 		}
-		if (this.sortedIndices.has(index)) return 'bg-vis-sorted';
-		return 'bg-vis-idle'; // Gray
+		// 2. Persistent Sorted State
+		if (this.sortedIndices.has(index)) {
+			return 'bg-vis-sorted';
+		}
+		// 3. Default
+		return 'bg-vis-idle';
 	}
 }
 

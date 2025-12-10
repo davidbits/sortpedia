@@ -43,12 +43,26 @@ export interface AlgorithmInfo {
 	};
 }
 
-export type SortEventType = 'compare' | 'swap' | 'write' | 'sorted' | 'shuffle';
+// Stats only, does not control visuals
+export type SortEventType = string;
 
 export interface SortEvent {
+	// The type of operation for statistical counting (e.g., 'compare', 'swap')
 	type: SortEventType;
-	indices: number[];
-	value?: number;
+
+	// Text to display for this specific step
+	text: string;
+
+	// Visuals: Map of Index -> CSS Color Class
+	// These apply only to the current frame/step
+	highlights?: Record<number, string>;
+
+	// Data: Map of Index -> New Value
+	// Used for Swaps or Overwrites
+	writes?: Record<number, number>;
+
+	// State: Indices to mark as persistently sorted (turn green permanently)
+	sorted?: number[];
 }
 
 export interface SortWorkerRequest {

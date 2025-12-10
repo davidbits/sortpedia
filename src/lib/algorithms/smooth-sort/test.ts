@@ -7,11 +7,12 @@ import smoothSort from './index';
 function executeSort(arr: number[]) {
 	const generator = smoothSort(arr);
 	for (const event of generator) {
-		if (event.type === 'write' && event.value !== undefined) {
-			arr[event.indices[0]] = event.value;
-		} else if (event.type === 'swap') {
-			const [i, j] = event.indices;
-			[arr[i], arr[j]] = [arr[j], arr[i]];
+		// New System: Mutations are explicit in the 'writes' map
+		if (event.writes) {
+			for (const indexStr of Object.keys(event.writes)) {
+				const index = Number(indexStr);
+				arr[index] = event.writes[index];
+			}
 		}
 	}
 }
