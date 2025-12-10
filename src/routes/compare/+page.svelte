@@ -2,8 +2,9 @@
 	import { algorithms, getAlgorithm } from '$lib/algorithms';
 	import { VisualizerEngine } from '$lib/stores/visualizer.svelte';
 	import VisualizerDisplay from '$lib/components/visualizer/VisualizerDisplay.svelte';
+	import TextWithLatex from '$lib/components/TextWithLatex.svelte';
 	import { onMount } from 'svelte';
-	import { Play, Pause, RotateCcw, Shuffle } from 'lucide-svelte';
+	import { Pause, Play, RotateCcw, Shuffle } from 'lucide-svelte';
 
 	// Independent engines for comparison
 	const engineA = new VisualizerEngine(40);
@@ -11,6 +12,11 @@
 
 	let algoIdA = $state(algorithms[0].id);
 	let algoIdB = $state(algorithms[1].id);
+
+	// Derived state for info blocks
+	let infoA = $derived(getAlgorithm(algoIdA));
+	let infoB = $derived(getAlgorithm(algoIdB));
+
 	let sharedSize = $state(40);
 	let sharedSpeed = $state(5);
 
@@ -72,7 +78,7 @@
 			<p class="text-surface-800 mt-2">Compare performance side-by-side on identical datasets</p>
 		</div>
 
-		<!-- Improved Playback Controls -->
+		<!-- Playback Controls -->
 		<div class="flex items-center gap-3">
 			{#if !isRunning && !isFinished}
 				<button
@@ -216,5 +222,62 @@
 					: 0}%
 			</div>
 		</div>
+	</div>
+
+	<!-- Comparison Details Section -->
+	<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+		<!-- Algorithm A Info -->
+		{#if infoA}
+			<div class="bg-surface-50 border-surface-200 rounded-xl border p-6">
+				<h3 class="text-surface-900 mb-3 border-b pb-2 text-lg font-bold">{infoA.name}</h3>
+				<p class="text-surface-800 mb-6 text-sm leading-relaxed">
+					<TextWithLatex text={infoA.details.summary} />
+				</p>
+				<h4 class="text-surface-900 mb-3 text-sm font-bold uppercase tracking-wider text-gray-500">
+					Steps
+				</h4>
+				<ul class="space-y-3 text-sm">
+					{#each infoA.details.steps as step, i (i)}
+						<li class="flex gap-3">
+							<span
+								class="bg-primary/10 text-primary flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
+							>
+								{i + 1}
+							</span>
+							<div class="text-surface-700">
+								<TextWithLatex text={step} />
+							</div>
+						</li>
+					{/each}
+				</ul>
+			</div>
+		{/if}
+
+		<!-- Algorithm B Info -->
+		{#if infoB}
+			<div class="bg-surface-50 border-surface-200 rounded-xl border p-6">
+				<h3 class="text-surface-900 mb-3 border-b pb-2 text-lg font-bold">{infoB.name}</h3>
+				<p class="text-surface-800 mb-6 text-sm leading-relaxed">
+					<TextWithLatex text={infoB.details.summary} />
+				</p>
+				<h4 class="text-surface-900 mb-3 text-sm font-bold uppercase tracking-wider text-gray-500">
+					Steps
+				</h4>
+				<ul class="space-y-3 text-sm">
+					{#each infoB.details.steps as step, i (i)}
+						<li class="flex gap-3">
+							<span
+								class="bg-accent/10 text-accent flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
+							>
+								{i + 1}
+							</span>
+							<div class="text-surface-700">
+								<TextWithLatex text={step} />
+							</div>
+						</li>
+					{/each}
+				</ul>
+			</div>
+		{/if}
 	</div>
 </div>

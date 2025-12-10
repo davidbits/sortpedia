@@ -1,12 +1,16 @@
 <script lang="ts">
-	import { algorithms } from '$lib/algorithms';
+	import { algorithms, getAlgorithm } from '$lib/algorithms';
 	import { visualizer } from '$lib/stores/visualizer.svelte';
 	import VisualizerDisplay from '$lib/components/visualizer/VisualizerDisplay.svelte';
+	import TextWithLatex from '$lib/components/TextWithLatex.svelte';
 	import { onMount } from 'svelte';
 	import { Play, Pause, RotateCcw, ChevronRight, ChevronLeft, Shuffle } from 'lucide-svelte';
 
 	// Bind controls to store
 	let selectedAlgo = $state(algorithms[0].id);
+
+	// Derived state for descriptions
+	let currentAlgo = $derived(getAlgorithm(selectedAlgo));
 
 	// Effects to sync inputs with store
 	const handleSizeChange = (e: Event) => {
@@ -159,3 +163,34 @@
 		</div>
 	</div>
 </div>
+
+{#if currentAlgo}
+	<div
+		class="bg-surface-50 border-surface-200 mt-8 grid gap-8 rounded-xl border p-6 md:grid-cols-2"
+	>
+		<div>
+			<h3 class="text-surface-900 mb-4 text-lg font-bold">Summary</h3>
+			<p class="text-surface-800 leading-relaxed text-sm">
+				<TextWithLatex text={currentAlgo.details.summary} />
+			</p>
+		</div>
+
+		<div>
+			<h3 class="text-surface-900 mb-4 text-lg font-bold">How it Works</h3>
+			<ul class="space-y-3">
+				{#each currentAlgo.details.steps as step, i (i)}
+					<li class="flex gap-3 text-sm">
+						<span
+							class="bg-surface-200 text-surface-700 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+						>
+							{i + 1}
+						</span>
+						<p class="text-surface-800 leading-relaxed">
+							<TextWithLatex text={step} />
+						</p>
+					</li>
+				{/each}
+			</ul>
+		</div>
+	</div>
+{/if}
