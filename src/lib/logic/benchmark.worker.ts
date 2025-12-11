@@ -22,8 +22,8 @@ self.onmessage = async (e: MessageEvent<BenchmarkRequest>) => {
 
 		// Perform multiple runs to average out JIT warmup and GC pauses
 		for (let i = 0; i < runs; i++) {
-			// Generate random array
-			const arr = Array.from({ length: arraySize }, () => Math.random() * 10000);
+			// Generate integers for all algorithms
+			const arr = Array.from({ length: arraySize }, () => Math.floor(Math.random() * 10000));
 
 			const start = performance.now();
 			sortFn(arr);
