@@ -1,5 +1,7 @@
 <script lang="ts">
 	import './layout.css';
+	import { dev } from '$app/environment';
+	import { injectAnalytics } from '@vercel/analytics/sveltekit';
 	import favicon from '$lib/assets/favicon.svg';
 	import Header from '$lib/components/Header.svelte';
 	import Footer from '$lib/components/Footer.svelte';
@@ -8,6 +10,8 @@
 	import { cubicOut } from 'svelte/easing';
 
 	let { children } = $props();
+
+	injectAnalytics({ mode: dev ? 'development' : 'production' });
 </script>
 
 <svelte:head>
