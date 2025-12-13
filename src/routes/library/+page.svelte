@@ -64,6 +64,25 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Sorting Algorithm Library - SortPedia</title>
+	<meta
+		name="description"
+		content="A comprehensive encyclopedia of sorting algorithms. Explore implementations, time complexity, stability, and usage characteristics."
+	/>
+	<meta property="og:title" content="Sorting Algorithm Library - SortPedia" />
+	<meta
+		property="og:description"
+		content="Browse our collection of sorting algorithms. Learn about their properties, advantages, and real-world applications."
+	/>
+	<meta property="og:url" content="https://sortpedia.com/library" />
+	<meta property="twitter:title" content="Sorting Algorithm Library - SortPedia" />
+	<meta
+		property="twitter:description"
+		content="Browse our collection of sorting algorithms. Learn about their properties, advantages, and real-world applications."
+	/>
+</svelte:head>
+
 <div class="flex flex-col gap-8">
 	<div>
 		<h1 class="text-surface-900 text-3xl font-bold">Algorithm Library</h1>

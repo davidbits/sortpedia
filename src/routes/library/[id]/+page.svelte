@@ -20,6 +20,13 @@
 	let algoId = $derived(page.params.id ?? '');
 	let algorithm = $derived(getAlgorithm(algoId));
 
+	// Helper for SEO description
+	let seoDescription = $derived(
+		algorithm
+			? `${algorithm.name}: ${algorithm.details.summary.replace(/`/g, '').slice(0, 150)}...`
+			: 'Detailed explanation and visualization of this sorting algorithm.'
+	);
+
 	let schemaJson = $derived(
 		JSON.stringify({
 			'@context': 'https://schema.org',
@@ -78,7 +85,28 @@
 
 <svelte:head>
 	<title>{algorithm ? algorithm.name : 'Algorithm Not Found'} - SortPedia</title>
+	<meta name="description" content={seoDescription} />
 	<link rel="canonical" href={`https://sortpedia.com/library/${algoId}`} />
+
+	<!-- Open Graph -->
+	<meta
+		property="og:title"
+		content={algorithm
+			? `${algorithm.name} Explained - SortPedia`
+			: 'Algorithm Not Found - SortPedia'}
+	/>
+	<meta property="og:description" content={seoDescription} />
+	<meta property="og:url" content={`https://sortpedia.com/library/${algoId}`} />
+	<meta property="og:type" content="article" />
+
+	<!-- Twitter -->
+	<meta
+		property="twitter:title"
+		content={algorithm
+			? `${algorithm.name} Explained - SortPedia`
+			: 'Algorithm Not Found - SortPedia'}
+	/>
+	<meta property="twitter:description" content={seoDescription} />
 
 	<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 	{@html jsonLdScript}

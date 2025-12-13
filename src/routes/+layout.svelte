@@ -13,10 +13,6 @@
 	injectAnalytics({ mode: dev ? 'development' : 'production' });
 </script>
 
-<svelte:head>
-	<title>SortPedia - Learn Algorithms Visually</title>
-</svelte:head>
-
 <Header />
 
 {#key page.url.pathname}

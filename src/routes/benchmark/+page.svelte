@@ -86,6 +86,25 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Algorithm Performance Benchmark - SortPedia</title>
+	<meta
+		name="description"
+		content="Run browser-based performance benchmarks. Measure the actual execution time of sorting algorithms across large datasets."
+	/>
+	<meta property="og:title" content="Algorithm Performance Benchmark - SortPedia" />
+	<meta
+		property="og:description"
+		content="Test the raw speed of sorting algorithms in your browser. Generate performance metrics for different array sizes."
+	/>
+	<meta property="og:url" content="https://sortpedia.com/benchmark" />
+	<meta property="twitter:title" content="Algorithm Performance Benchmark - SortPedia" />
+	<meta
+		property="twitter:description"
+		content="Test the raw speed of sorting algorithms in your browser. Generate performance metrics for different array sizes."
+	/>
+</svelte:head>
+
 <div class="flex flex-col gap-8 pb-12">
 	<div class="text-center md:text-left">
 		<h1 class="text-3xl font-bold">Performance Benchmark</h1>

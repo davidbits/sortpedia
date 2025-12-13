@@ -1,3 +1,22 @@
+<svelte:head>
+	<title>About SortPedia</title>
+	<meta
+		name="description"
+		content="SortPedia is an educational project designed to demystify computer science algorithms through interactive visualizations."
+	/>
+	<meta property="og:title" content="About SortPedia" />
+	<meta
+		property="og:description"
+		content="Learn about our mission to make computer science concepts accessible through interactive tools."
+	/>
+	<meta property="og:url" content="https://sortpedia.com/about" />
+	<meta property="twitter:title" content="About SortPedia" />
+	<meta
+		property="twitter:description"
+		content="Learn about our mission to make computer science concepts accessible through interactive tools."
+	/>
+</svelte:head>
+
 <div class="prose prose-slate mx-auto max-w-3xl pb-12">
 	<h1>About SortPedia</h1>
 	<p class="lead">

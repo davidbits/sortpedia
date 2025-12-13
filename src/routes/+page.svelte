@@ -1,6 +1,42 @@
 <script>
 	import { resolve } from '$app/paths';
+
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const schema = JSON.stringify({
+		'@context': 'https://schema.org',
+		'@graph': [
+			{
+				'@type': 'WebSite',
+				'@id': 'https://sortpedia.com/#website',
+				url: 'https://sortpedia.com/',
+				name: 'SortPedia',
+				description: 'Interactive Sorting Algorithm Visualizer',
+				publisher: {
+					'@id': 'https://sortpedia.com/#organization'
+				}
+			},
+			{
+				'@type': 'Organization',
+				'@id': 'https://sortpedia.com/#organization',
+				name: 'SortPedia',
+				url: 'https://sortpedia.com/',
+				logo: 'https://sortpedia.com/favicon.svg',
+				sameAs: []
+			}
+		]
+	});
 </script>
+
+<svelte:head>
+	<title>SortPedia - Interactive Sorting Algorithm Visualizer</title>
+	<meta property="og:title" content="SortPedia - Interactive Sorting Algorithm Visualizer" />
+	<meta property="twitter:title" content="SortPedia - Interactive Sorting Algorithm Visualizer" />
+	<meta property="og:url" content="https://sortpedia.com/" />
+
+	<script type="application/ld+json">
+{schema}
+	</script>
+</svelte:head>
 
 <div class="flex flex-col items-center justify-center py-20 text-center">
 	<h1 class="text-surface-900 text-5xl font-extrabold tracking-tight sm:text-6xl">

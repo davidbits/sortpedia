@@ -44,6 +44,25 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Interactive Sorting Visualizer - SortPedia</title>
+	<meta
+		name="description"
+		content="Control and watch sorting algorithms in real-time. Adjust speed, array size, and step through code execution for Quick Sort, Merge Sort, and more."
+	/>
+	<meta property="og:title" content="Interactive Sorting Visualizer - SortPedia" />
+	<meta
+		property="og:description"
+		content="Watch sorting algorithms run step-by-step. Control the speed and data size to understand how they work."
+	/>
+	<meta property="og:url" content="https://sortpedia.com/visualizer" />
+	<meta property="twitter:title" content="Interactive Sorting Visualizer - SortPedia" />
+	<meta
+		property="twitter:description"
+		content="Watch sorting algorithms run step-by-step. Control the speed and data size to understand how they work."
+	/>
+</svelte:head>
+
 <div class="grid min-h-[600px] grid-cols-1 gap-6 lg:grid-cols-4">
 	<!-- Canvas Area -->
 	<div

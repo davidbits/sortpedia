@@ -83,6 +83,25 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Compare Sorting Algorithms - SortPedia</title>
+	<meta
+		name="description"
+		content="Race sorting algorithms side-by-side. Compare efficiency, operations, and behavior of different sorts on identical datasets."
+	/>
+	<meta property="og:title" content="Compare Sorting Algorithms - SortPedia" />
+	<meta
+		property="og:description"
+		content="See which algorithm is faster. Race algorithms like Quick Sort vs Bubble Sort on the same data."
+	/>
+	<meta property="og:url" content="https://sortpedia.com/compare" />
+	<meta property="twitter:title" content="Compare Sorting Algorithms - SortPedia" />
+	<meta
+		property="twitter:description"
+		content="See which algorithm is faster. Race algorithms like Quick Sort vs Bubble Sort on the same data."
+	/>
+</svelte:head>
+
 <div class="flex flex-col gap-8">
 	<div
 		class="flex flex-col items-center justify-between gap-4 text-center md:flex-row md:text-left"
