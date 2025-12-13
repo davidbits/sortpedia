@@ -4,21 +4,33 @@
 	import VisualizerDisplay from '$lib/components/visualizer/VisualizerDisplay.svelte';
 	import TextWithLatex from '$lib/components/TextWithLatex.svelte';
 	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 	import {
-		TriangleAlert,
 		ChevronLeft,
 		ChevronRight,
 		Pause,
 		Play,
 		RotateCcw,
-		Shuffle
+		Shuffle,
+		TriangleAlert
 	} from 'lucide-svelte';
 
-	// Bind controls to store
-	let selectedAlgo = $state(algorithms[0].id);
+	// Check URL for a pre-selected algorithm, otherwise default to the first one.
+	const urlAlgo = page.url.searchParams.get('algo');
+	const isValidInitialAlgo = urlAlgo && algorithms.some((a) => a.id === urlAlgo);
+	let selectedAlgo = $state(isValidInitialAlgo ? urlAlgo : algorithms[0].id);
 
 	// Derived state for descriptions
 	let currentAlgo = $derived(getAlgorithm(selectedAlgo));
+
+	// Effect to sync with URL changes during client-side navigation
+	$effect(() => {
+		const newUrlAlgo = page.url.searchParams.get('algo');
+		if (newUrlAlgo && newUrlAlgo !== selectedAlgo && algorithms.some((a) => a.id === newUrlAlgo)) {
+			selectedAlgo = newUrlAlgo;
+			visualizer.reset(); // Reset the visualizer when the algorithm changes
+		}
+	});
 
 	// Warning Logic
 	let warningMessage = $derived.by(() => {

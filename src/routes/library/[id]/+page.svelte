@@ -15,7 +15,7 @@
 	import Latex from '$lib/components/Latex.svelte';
 	import CodeBlock from '$lib/components/CodeBlock.svelte';
 	import TextWithLatex from '$lib/components/TextWithLatex.svelte';
-	import { Pause, Play, RotateCcw, Shuffle } from 'lucide-svelte';
+	import { CirclePlay, Pause, Play, RotateCcw, Shuffle } from 'lucide-svelte';
 
 	let algoId = $derived(page.params.id ?? '');
 	let algorithm = $derived(getAlgorithm(algoId));
@@ -270,6 +270,15 @@
 			<!--Sidebar / Mini Visualizer -->
 			<div class="lg:col-span-1 lg:col-start-3">
 				<div class="sticky top-24 space-y-6">
+					<!-- eslint-disable svelte/no-navigation-without-resolve -->
+					<a
+						href={`/visualizer?algo=${algorithm.id}`}
+						class="bg-primary hover:bg-primary-dark focus:ring-primary/50 flex w-full items-center justify-center gap-2.5 rounded-lg py-3 font-bold text-white shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-2"
+					>
+						<!-- eslint-enable svelte/no-navigation-without-resolve -->
+						<CirclePlay size={20} />
+						Visualize Fullscreen
+					</a>
 					<div class="bg-surface-50 border-surface-200 overflow-hidden rounded-xl border shadow-sm">
 						<div class="border-surface-200 border-b bg-white p-4">
 							<h3 class="font-bold">Demo</h3>
