@@ -1,7 +1,6 @@
 <script>
 	import { resolve } from '$app/paths';
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const schema = JSON.stringify({
 		'@context': 'https://schema.org',
 		'@graph': [
@@ -33,9 +32,8 @@
 	<meta property="twitter:title" content="SortPedia - Interactive Sorting Algorithm Visualizer" />
 	<meta property="og:url" content="https://sortpedia.com/" />
 
-	<script type="application/ld+json">
-{schema}
-	</script>
+	<!-- eslint-disable-next-line svelte/no-at-html-tags -- Safe: static JSON-LD schema -->
+	{@html `<script type="application/ld+json">${schema}<` + '/script>'}
 </svelte:head>
 
 <div class="flex flex-col items-center justify-center py-20 text-center">
