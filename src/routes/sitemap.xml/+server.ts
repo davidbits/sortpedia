@@ -13,24 +13,22 @@ export async function GET() {
   xmlns:image="https://www.google.com/schemas/sitemap-image/1.1"
   xmlns:video="https://www.google.com/schemas/sitemap-video/1.1"
 >
-  ${pages
+	${pages
 		.map(
 			(page) => `
   <url>
     <loc>${site}${page}</loc>
-    <changefreq>weekly</changefreq>
-    <priority>${page === '/' ? 1.0 : 0.8}</priority>
+    <lastmod>${new Date().toISOString()}</lastmod>
   </url>
   `
 		)
 		.join('')}
-  ${algorithms
+	${algorithms
 		.map(
 			(algo) => `
   <url>
     <loc>${site}/library/${algo.id}</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <lastmod>${new Date().toISOString()}</lastmod>
   </url>
   `
 		)
