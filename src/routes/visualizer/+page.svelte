@@ -4,6 +4,8 @@
 	import VisualizerDisplay from '$lib/components/visualizer/VisualizerDisplay.svelte';
 	import TextWithLatex from '$lib/components/TextWithLatex.svelte';
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import {
 		ChevronLeft,
@@ -31,6 +33,11 @@
 			visualizer.reset(); // Reset the visualizer when the algorithm changes
 		}
 	});
+
+	const handleAlgoChange = () => {
+		visualizer.reset();
+		goto(resolve(`/visualizer?algo=${selectedAlgo}`), { replaceState: true, keepFocus: true });
+	};
 
 	// Warning Logic
 	let warningMessage = $derived.by(() => {
@@ -142,7 +149,7 @@
 			<select
 				id="algo-select"
 				bind:value={selectedAlgo}
-				onchange={() => visualizer.reset()}
+				onchange={handleAlgoChange}
 				class="border-surface-200 bg-surface-50 focus:border-primary focus:ring-primary/20 rounded-md border p-2 transition-shadow focus:ring-2 focus:outline-none"
 			>
 				{#each algorithms as algo (algo.id)}

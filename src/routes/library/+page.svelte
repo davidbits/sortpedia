@@ -1,4 +1,5 @@
-<script>
+<script lang="ts">
+	import type { AlgorithmCategory } from '$lib/algorithms/types';
 	import {
 		adaptiveExplanation,
 		algorithms,
@@ -39,7 +40,8 @@
 			.filter((algo) => {
 				const matchesSearch = algo.name.toLowerCase().includes(searchQuery.toLowerCase());
 				const matchesCategory =
-					selectedCategory === 'All' || algo.category.includes(selectedCategory);
+					selectedCategory === 'All' ||
+					algo.category.includes(selectedCategory as AlgorithmCategory);
 				const matchesStable = !filterStable || algo.stable;
 				const matchesAdaptive = !filterAdaptive || algo.adaptive;
 				const matchesInPlace = !filterInPlace || algo.inPlace;
