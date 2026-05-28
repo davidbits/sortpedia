@@ -17,7 +17,7 @@ let isEmbedView = $derived(isVisualizerEmbedUrl(page.url));
 </script>
 
 {#if isEmbedView}
-	<main class="flex h-screen w-full flex-1 px-2 py-2 sm:px-3 sm:py-3">
+	<main class="min-h-screen w-full p-2 sm:p-3 lg:h-screen lg:overflow-hidden">
 		{@render children()}
 	</main>
 {:else}

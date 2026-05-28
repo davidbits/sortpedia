@@ -8,7 +8,7 @@ import {
 	Shuffle,
 	TriangleAlert
 } from 'lucide-svelte';
-import { onMount } from 'svelte';
+import { onMount, untrack } from 'svelte';
 import { goto } from '$app/navigation';
 import { resolve } from '$app/paths';
 import { page } from '$app/state';
@@ -19,9 +19,10 @@ import { hasEmbedMode } from '$lib/embed';
 import { visualizer } from '$lib/stores/visualizer.svelte';
 
 // Check URL for a pre-selected algorithm, otherwise default to the first one.
+const isValidAlgo = (id: string | null): id is string =>
+	!!id && algorithms.some((a) => a.id === id);
 const urlAlgo = page.url.searchParams.get('algo');
-const isValidInitialAlgo = urlAlgo && algorithms.some((a) => a.id === urlAlgo);
-let selectedAlgo = $state(isValidInitialAlgo ? urlAlgo : algorithms[0].id);
+let selectedAlgo = $state(isValidAlgo(urlAlgo) ? urlAlgo : algorithms[0].id);
 let isEmbedMode = $derived(hasEmbedMode(page.url.searchParams));
 
 // Derived state for descriptions
@@ -30,16 +31,21 @@ let currentAlgo = $derived(getAlgorithm(selectedAlgo));
 // Effect to sync with URL changes during client-side navigation
 $effect(() => {
 	const newUrlAlgo = page.url.searchParams.get('algo');
-	if (newUrlAlgo && newUrlAlgo !== selectedAlgo && algorithms.some((a) => a.id === newUrlAlgo)) {
+	const currentSelectedAlgo = untrack(() => selectedAlgo);
+	if (isValidAlgo(newUrlAlgo) && newUrlAlgo !== currentSelectedAlgo) {
 		selectedAlgo = newUrlAlgo;
 		visualizer.reset(); // Reset the visualizer when the algorithm changes
 	}
 });
 
-const handleAlgoChange = () => {
+const handleAlgoChange = (event: Event) => {
+	const newSelectedAlgo = (event.currentTarget as HTMLSelectElement).value;
+	if (!isValidAlgo(newSelectedAlgo)) return;
+
+	selectedAlgo = newSelectedAlgo;
 	visualizer.reset();
 	const searchParams = new URLSearchParams(page.url.searchParams);
-	searchParams.set('algo', selectedAlgo);
+	searchParams.set('algo', newSelectedAlgo);
 	goto(resolve(`/visualizer?${searchParams.toString()}`), { replaceState: true, keepFocus: true });
 };
 
@@ -88,13 +94,13 @@ onMount(() => {
 
 <div
 	class="grid w-full grid-cols-1 lg:grid-cols-4 {isEmbedMode
-		? 'h-full gap-3 overflow-auto'
+		? 'gap-3 lg:h-full lg:min-h-0 lg:overflow-hidden'
 		: 'min-h-[600px] gap-6'}"
 >
 	<!-- Canvas Area -->
 	<div
 		class="bg-surface-100 border-surface-200 relative flex flex-col items-center justify-center overflow-hidden rounded-xl border shadow-inner lg:col-span-3 {isEmbedMode
-			? 'min-h-[260px] p-4 lg:min-h-0 lg:p-6'
+			? 'min-h-[320px] p-4 lg:min-h-0 lg:p-6'
 			: 'min-h-[400px] p-8'}"
 	>
 		<!-- Step Description Label -->
@@ -119,7 +125,7 @@ onMount(() => {
 	<!-- Controls Panel -->
 	<div
 		class="bg-surface-50 border-surface-200 flex flex-col rounded-xl border shadow-sm {isEmbedMode
-			? 'gap-4 p-4'
+			? 'min-h-0 gap-4 p-4 lg:overflow-y-auto'
 			: 'gap-6 p-6'}"
 	>
 		<!-- Statistics Dashboard -->
