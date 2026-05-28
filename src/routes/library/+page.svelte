@@ -1,69 +1,66 @@
 <script lang="ts">
-	import type { AlgorithmCategory } from '$lib/algorithms/types';
-	import {
-		adaptiveExplanation,
-		algorithms,
-		categoryExplanations,
-		inPlaceExplanation,
-		stableExplanation,
-		unstableExplanation
-	} from '$lib/algorithms';
-	import { resolve } from '$app/paths';
-	import { fade } from 'svelte/transition';
-	import { flip } from 'svelte/animate';
-	import Latex from '$lib/components/Latex.svelte';
-	import { ArrowDownAZ, ArrowUpAZ, RotateCcw, Search, X } from 'lucide-svelte';
+import { ArrowDownAZ, ArrowUpAZ, RotateCcw, Search, X } from 'lucide-svelte';
+import { flip } from 'svelte/animate';
+import { fade } from 'svelte/transition';
+import { resolve } from '$app/paths';
+import {
+	adaptiveExplanation,
+	algorithms,
+	categoryExplanations,
+	inPlaceExplanation,
+	stableExplanation,
+	unstableExplanation
+} from '$lib/algorithms';
+import type { AlgorithmCategory } from '$lib/algorithms/types';
+import Latex from '$lib/components/Latex.svelte';
 
-	// Filter & Sort State
-	let searchQuery = $state('');
-	let selectedCategory = $state('All');
-	let filterStable = $state(false);
-	let filterAdaptive = $state(false);
-	let filterInPlace = $state(false);
-	let sortAsc = $state(true);
+// Filter & Sort State
+let searchQuery = $state('');
+let selectedCategory = $state('All');
+let filterStable = $state(false);
+let filterAdaptive = $state(false);
+let filterInPlace = $state(false);
+let sortAsc = $state(true);
 
-	// Derived Data
-	let categories = $derived(['All', ...new Set(algorithms.flatMap((a) => a.category))].sort());
+// Derived Data
+let categories = $derived(['All', ...new Set(algorithms.flatMap((a) => a.category))].sort());
 
-	// Check if any filter is active for the Reset button state
-	let isFiltered = $derived(
-		searchQuery !== '' ||
-			selectedCategory !== 'All' ||
-			filterStable ||
-			filterAdaptive ||
-			filterInPlace ||
-			!sortAsc
-	);
+// Check if any filter is active for the Reset button state
+let isFiltered = $derived(
+	searchQuery !== '' ||
+		selectedCategory !== 'All' ||
+		filterStable ||
+		filterAdaptive ||
+		filterInPlace ||
+		!sortAsc
+);
 
-	let filteredAlgorithms = $derived(
-		algorithms
-			.filter((algo) => {
-				const matchesSearch = algo.name.toLowerCase().includes(searchQuery.toLowerCase());
-				const matchesCategory =
-					selectedCategory === 'All' ||
-					algo.category.includes(selectedCategory as AlgorithmCategory);
-				const matchesStable = !filterStable || algo.stable;
-				const matchesAdaptive = !filterAdaptive || algo.adaptive;
-				const matchesInPlace = !filterInPlace || algo.inPlace;
+let filteredAlgorithms = $derived(
+	algorithms
+		.filter((algo) => {
+			const matchesSearch = algo.name.toLowerCase().includes(searchQuery.toLowerCase());
+			const matchesCategory =
+				selectedCategory === 'All' || algo.category.includes(selectedCategory as AlgorithmCategory);
+			const matchesStable = !filterStable || algo.stable;
+			const matchesAdaptive = !filterAdaptive || algo.adaptive;
+			const matchesInPlace = !filterInPlace || algo.inPlace;
 
-				return (
-					matchesSearch && matchesCategory && matchesStable && matchesAdaptive && matchesInPlace
-				);
-			})
-			.sort((a, b) => {
-				const comparison = a.name.localeCompare(b.name);
-				return sortAsc ? comparison : -comparison;
-			})
-	);
+			return matchesSearch && matchesCategory && matchesStable && matchesAdaptive && matchesInPlace;
+		})
+		.sort((a, b) => {
+			const comparison = a.name.localeCompare(b.name);
+			return sortAsc ? comparison : -comparison;
+		})
+);
 
-	function resetFilters() {
-		searchQuery = '';
-		selectedCategory = 'All';
-		filterStable = false;
-		filterAdaptive = false;
-		filterInPlace = false;
-		sortAsc = true;
-	}
+function resetFilters() {
+	searchQuery = '';
+	selectedCategory = 'All';
+	filterStable = false;
+	filterAdaptive = false;
+	filterInPlace = false;
+	sortAsc = true;
+}
 </script>
 
 <svelte:head>

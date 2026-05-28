@@ -61,3 +61,7 @@ vite.config.ts.timestamp-*
 # Gradle
 .idea/**/gradle.xml
 .idea/**/libraries
+
+# Agents
+.code-review-graph/
+.codex

@@ -2,8 +2,9 @@ export interface AlgorithmInfo {
 	id: string;
 	name: string;
 	group: 'Comparison-Based' | 'Non-Comparison-Based' | 'Specialized';
-	category: (// Comparison-Based
-	| 'Exchange'
+	category: // Comparison-Based
+	(
+		| 'Exchange'
 		| 'Selection'
 		| 'Insertion'
 		| 'Divide and Conquer'
@@ -44,6 +45,8 @@ export interface AlgorithmInfo {
 		funFacts?: string[];
 	};
 }
+
+export type AlgorithmCategory = AlgorithmInfo['category'][number];
 
 // Stats only, does not control visuals
 export type SortEventType = string;

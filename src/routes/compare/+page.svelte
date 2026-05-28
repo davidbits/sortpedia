@@ -1,86 +1,86 @@
 <script lang="ts">
-	import { algorithms, getAlgorithm } from '$lib/algorithms';
-	import { VisualizerEngine } from '$lib/stores/visualizer.svelte';
-	import VisualizerDisplay from '$lib/components/visualizer/VisualizerDisplay.svelte';
-	import TextWithLatex from '$lib/components/TextWithLatex.svelte';
-	import { onMount } from 'svelte';
-	import { TriangleAlert, Pause, Play, RotateCcw, Shuffle } from 'lucide-svelte';
+import { Pause, Play, RotateCcw, Shuffle, TriangleAlert } from 'lucide-svelte';
+import { onMount } from 'svelte';
+import { algorithms, getAlgorithm } from '$lib/algorithms';
+import TextWithLatex from '$lib/components/TextWithLatex.svelte';
+import VisualizerDisplay from '$lib/components/visualizer/VisualizerDisplay.svelte';
+import { VisualizerEngine } from '$lib/stores/visualizer.svelte';
 
-	// Independent engines for comparison
-	const engineA = new VisualizerEngine(40);
-	const engineB = new VisualizerEngine(40);
+// Independent engines for comparison
+const engineA = new VisualizerEngine(40);
+const engineB = new VisualizerEngine(40);
 
-	let algoIdA = $state(algorithms[0].id);
-	let algoIdB = $state(algorithms[1].id);
+let algoIdA = $state(algorithms[0].id);
+let algoIdB = $state(algorithms[1].id);
 
-	// Derived state for info blocks
-	let infoA = $derived(getAlgorithm(algoIdA));
-	let infoB = $derived(getAlgorithm(algoIdB));
+// Derived state for info blocks
+let infoA = $derived(getAlgorithm(algoIdA));
+let infoB = $derived(getAlgorithm(algoIdB));
 
-	let sharedSize = $state(40);
-	let sharedSpeed = $state(5);
+let sharedSize = $state(40);
+let sharedSpeed = $state(5);
 
-	let isRunning = $derived(engineA.isPlaying || engineB.isPlaying);
-	let isFinished = $derived(
-		engineA.totalOperations > 0 &&
-			engineA.operationIndex >= engineA.totalOperations &&
-			engineB.totalOperations > 0 &&
-			engineB.operationIndex >= engineB.totalOperations
-	);
+let isRunning = $derived(engineA.isPlaying || engineB.isPlaying);
+let isFinished = $derived(
+	engineA.totalOperations > 0 &&
+		engineA.operationIndex >= engineA.totalOperations &&
+		engineB.totalOperations > 0 &&
+		engineB.operationIndex >= engineB.totalOperations
+);
 
-	function generateSharedArray() {
-		const newArray = Array.from({ length: sharedSize }, () => Math.floor(Math.random() * 95) + 5);
-		engineA.setArray(newArray);
-		engineB.setArray(newArray);
+function generateSharedArray() {
+	const newArray = Array.from({ length: sharedSize }, () => Math.floor(Math.random() * 95) + 5);
+	engineA.setArray(newArray);
+	engineB.setArray(newArray);
+}
+
+function handleSpeedChange() {
+	engineA.speed = sharedSpeed;
+	engineB.speed = sharedSpeed;
+}
+
+/**
+ * When changing an algorithm, perform a full reset on both engines.
+ * This clears the trace and stats, while preserving the initialArray.
+ */
+function handleAlgorithmChange() {
+	engineA.reset();
+	engineB.reset();
+}
+
+function startRace() {
+	handleSpeedChange();
+	engineA.runAlgorithm(algoIdA);
+	engineB.runAlgorithm(algoIdB);
+}
+
+function pauseRace() {
+	engineA.pause();
+	engineB.pause();
+}
+
+function resetRace() {
+	engineA.resetPlayback();
+	engineB.resetPlayback();
+}
+
+// Warning Logic for Compare Mode
+let activeWarning = $derived.by(() => {
+	const warnA = infoA?.warningThreshold && sharedSize > infoA.warningThreshold;
+	const warnB = infoB?.warningThreshold && sharedSize > infoB.warningThreshold;
+
+	if (warnA || warnB) {
+		const names = [];
+		if (warnA) names.push(infoA?.name);
+		if (warnB) names.push(infoB?.name);
+		return `High Latency Warning: ${names.join(' and ')} ${names.length > 1 ? 'are' : 'is'} not designed for ${sharedSize} elements. Expect significant delays.`;
 	}
+	return null;
+});
 
-	function handleSpeedChange() {
-		engineA.speed = sharedSpeed;
-		engineB.speed = sharedSpeed;
-	}
-
-	/**
-	 * When changing an algorithm, perform a full reset on both engines.
-	 * This clears the trace and stats, while preserving the initialArray.
-	 */
-	function handleAlgorithmChange() {
-		engineA.reset();
-		engineB.reset();
-	}
-
-	function startRace() {
-		handleSpeedChange();
-		engineA.runAlgorithm(algoIdA);
-		engineB.runAlgorithm(algoIdB);
-	}
-
-	function pauseRace() {
-		engineA.pause();
-		engineB.pause();
-	}
-
-	function resetRace() {
-		engineA.resetPlayback();
-		engineB.resetPlayback();
-	}
-
-	// Warning Logic for Compare Mode
-	let activeWarning = $derived.by(() => {
-		const warnA = infoA?.warningThreshold && sharedSize > infoA.warningThreshold;
-		const warnB = infoB?.warningThreshold && sharedSize > infoB.warningThreshold;
-
-		if (warnA || warnB) {
-			const names = [];
-			if (warnA) names.push(infoA?.name);
-			if (warnB) names.push(infoB?.name);
-			return `High Latency Warning: ${names.join(' and ')} ${names.length > 1 ? 'are' : 'is'} not designed for ${sharedSize} elements. Expect significant delays.`;
-		}
-		return null;
-	});
-
-	onMount(() => {
-		generateSharedArray();
-	});
+onMount(() => {
+	generateSharedArray();
+});
 </script>
 
 <svelte:head>

@@ -1,16 +1,16 @@
 <script lang="ts">
-	import './layout.css';
-	import { dev } from '$app/environment';
-	import { injectAnalytics } from '@vercel/analytics/sveltekit';
-	import Header from '$lib/components/Header.svelte';
-	import Footer from '$lib/components/Footer.svelte';
-	import { page } from '$app/state';
-	import { fly } from 'svelte/transition';
-	import { cubicOut } from 'svelte/easing';
+import './layout.css';
+import { injectAnalytics } from '@vercel/analytics/sveltekit';
+import { cubicOut } from 'svelte/easing';
+import { fly } from 'svelte/transition';
+import { dev } from '$app/environment';
+import { page } from '$app/state';
+import Footer from '$lib/components/Footer.svelte';
+import Header from '$lib/components/Header.svelte';
 
-	let { children } = $props();
+let { children } = $props();
 
-	injectAnalytics({ mode: dev ? 'development' : 'production' });
+injectAnalytics({ mode: dev ? 'development' : 'production' });
 </script>
 
 <Header />

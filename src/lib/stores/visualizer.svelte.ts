@@ -1,5 +1,5 @@
-import type { SortEvent, SortWorkerResponse } from '$lib/algorithms/types';
 import { SvelteSet } from 'svelte/reactivity';
+import type { SortEvent, SortWorkerResponse } from '$lib/algorithms/types';
 
 // Helper to track items uniquely through structural changes
 export interface VisualizerItem {
@@ -175,7 +175,7 @@ export class VisualizerEngine {
 
 			// Dynamic Speed Calculation per frame
 			// Speed 1-4: Adds delay. Speed 5-10: Batches operations.
-			const opsPerFrame = this.speed >= 5 ? Math.pow(this.speed - 4, 2) : 1;
+			const opsPerFrame = this.speed >= 5 ? (this.speed - 4) ** 2 : 1;
 			const delay = this.speed < 5 ? (5 - this.speed) * 100 : 0;
 
 			// Execute batch
@@ -242,7 +242,7 @@ export class VisualizerEngine {
 		// 2. Handle writes (swaps, overdubs)
 		if (event.writes) {
 			for (const [indexStr, value] of Object.entries(event.writes)) {
-				const index = parseInt(indexStr);
+				const index = parseInt(indexStr, 10);
 				if (index >= 0 && index < this.array.length) {
 					this.array[index].value = value;
 				}
@@ -251,7 +251,9 @@ export class VisualizerEngine {
 
 		// 3. Handle persistent sorted marking
 		if (event.sorted) {
-			event.sorted.forEach((idx) => this.sortedIndices.add(idx));
+			event.sorted.forEach((idx) => {
+				this.sortedIndices.add(idx);
+			});
 		}
 	}
 

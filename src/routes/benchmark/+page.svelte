@@ -1,89 +1,89 @@
 <script lang="ts">
-	import { benchmarkAlgorithms } from '$lib/algorithms';
-	import { TriangleAlert, Play, RotateCcw, Timer } from 'lucide-svelte';
-	import { SvelteSet } from 'svelte/reactivity';
+import { Play, RotateCcw, Timer, TriangleAlert } from 'lucide-svelte';
+import { SvelteSet } from 'svelte/reactivity';
+import { benchmarkAlgorithms } from '$lib/algorithms';
 
-	// Settings
-	let arraySize = $state(1000);
-	let runs = $state(5);
+// Settings
+let arraySize = $state(1000);
+let runs = $state(5);
 
-	const initialSelection = benchmarkAlgorithms.length > 0 ? [benchmarkAlgorithms[0].id] : [];
-	let selectedIds = new SvelteSet<string>(initialSelection);
+const initialSelection = benchmarkAlgorithms.length > 0 ? [benchmarkAlgorithms[0].id] : [];
+let selectedIds = new SvelteSet<string>(initialSelection);
 
-	// State
-	let isRunning = $state(false);
-	let results = $state<Record<string, number | null>>({});
-	let progress = $state(0);
+// State
+let isRunning = $state(false);
+let results = $state<Record<string, number | null>>({});
+let progress = $state(0);
 
-	let worker: Worker | undefined;
+let worker: Worker | undefined;
 
-	// SvelteSet allows direct mutation while maintaining reactivity
-	function toggleSelection(id: string) {
-		if (selectedIds.has(id)) {
-			selectedIds.delete(id);
-		} else {
-			selectedIds.add(id);
-		}
+// SvelteSet allows direct mutation while maintaining reactivity
+function toggleSelection(id: string) {
+	if (selectedIds.has(id)) {
+		selectedIds.delete(id);
+	} else {
+		selectedIds.add(id);
+	}
+}
+
+async function runBenchmark() {
+	if (selectedIds.size === 0) return;
+
+	isRunning = true;
+	results = {};
+	progress = 0;
+
+	// Initialize worker if needed
+	if (!worker) {
+		const WorkerModule = await import('$lib/logic/benchmark.worker?worker');
+		worker = new WorkerModule.default();
+
+		worker.onmessage = (e) => {
+			const { id, averageTime } = e.data;
+			results[id] = averageTime;
+			progress++;
+
+			// Check if finished
+			if (progress >= selectedIds.size) {
+				isRunning = false;
+			}
+		};
 	}
 
-	async function runBenchmark() {
-		if (selectedIds.size === 0) return;
-
-		isRunning = true;
-		results = {};
-		progress = 0;
-
-		// Initialize worker if needed
-		if (!worker) {
-			const WorkerModule = await import('$lib/logic/benchmark.worker?worker');
-			worker = new WorkerModule.default();
-
-			worker.onmessage = (e) => {
-				const { id, averageTime } = e.data;
-				results[id] = averageTime;
-				progress++;
-
-				// Check if finished
-				if (progress >= selectedIds.size) {
-					isRunning = false;
-				}
-			};
-		}
-
-		// Queue jobs
-		for (const id of selectedIds) {
-			results[id] = null; // Mark as pending
-			worker.postMessage({
-				id,
-				arraySize,
-				runs
-			});
-		}
+	// Queue jobs
+	for (const id of selectedIds) {
+		results[id] = null; // Mark as pending
+		worker.postMessage({
+			id,
+			arraySize,
+			runs
+		});
 	}
+}
 
-	function reset() {
-		results = {};
-		progress = 0;
-		isRunning = false;
+function reset() {
+	results = {};
+	progress = 0;
+	isRunning = false;
+}
+
+// Calculate chart scaling
+let maxTime = $derived(
+	Math.max(...Object.values(results).filter((v): v is number => typeof v === 'number'), 0)
+);
+
+// Warning for slow algorithms in benchmark mode
+let warningMessage = $derived.by(() => {
+	const dangerAlgos = [...selectedIds]
+		.map((id) => benchmarkAlgorithms.find((a) => a.id === id))
+		.filter((a) => a?.warningThreshold && arraySize > a.warningThreshold);
+
+	if (dangerAlgos.length > 0) {
+		const names = dangerAlgos.map((a) => a?.name).join(', ');
+		return `Caution: You are benchmarking ${names} with ${arraySize} elements. These algorithms have exponential complexity and may freeze the browser for an extended period.`;
 	}
-
-	// Calculate chart scaling
-	let maxTime = $derived(
-		Math.max(...Object.values(results).filter((v): v is number => typeof v === 'number'), 0)
-	);
-
-	// Warning for slow algorithms in benchmark mode
-	let warningMessage = $derived.by(() => {
-		const dangerAlgos = [...selectedIds]
-			.map((id) => benchmarkAlgorithms.find((a) => a.id === id))
-			.filter((a) => a && a.warningThreshold && arraySize > a.warningThreshold);
-
-		if (dangerAlgos.length > 0) {
-			const names = dangerAlgos.map((a) => a?.name).join(', ');
-			return `Caution: You are benchmarking ${names} with ${arraySize} elements. These algorithms have exponential complexity and may freeze the browser for an extended period.`;
-		}
-		return null;
-	});
+	return null;
+});
 </script>
 
 <svelte:head>

@@ -23,8 +23,7 @@ function runTests() {
 	let passed = 0;
 	let total = 0;
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const assert = (desc: string, actual: any, expected: any) => {
+	const assert = (desc: string, actual: unknown, expected: unknown) => {
 		total++;
 		const actStr = JSON.stringify(actual);
 		const expStr = JSON.stringify(expected);

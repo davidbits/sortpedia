@@ -1,29 +1,29 @@
 <script>
-	import { resolve } from '$app/paths';
+import { resolve } from '$app/paths';
 
-	const schema = JSON.stringify({
-		'@context': 'https://schema.org',
-		'@graph': [
-			{
-				'@type': 'WebSite',
-				'@id': 'https://sortpedia.com/#website',
-				url: 'https://sortpedia.com/',
-				name: 'SortPedia',
-				description: 'Interactive Sorting Algorithm Visualizer',
-				publisher: {
-					'@id': 'https://sortpedia.com/#organization'
-				}
-			},
-			{
-				'@type': 'Organization',
-				'@id': 'https://sortpedia.com/#organization',
-				name: 'SortPedia',
-				url: 'https://sortpedia.com/',
-				logo: 'https://sortpedia.com/favicon.svg',
-				sameAs: []
+const schema = JSON.stringify({
+	'@context': 'https://schema.org',
+	'@graph': [
+		{
+			'@type': 'WebSite',
+			'@id': 'https://sortpedia.com/#website',
+			url: 'https://sortpedia.com/',
+			name: 'SortPedia',
+			description: 'Interactive Sorting Algorithm Visualizer',
+			publisher: {
+				'@id': 'https://sortpedia.com/#organization'
 			}
-		]
-	});
+		},
+		{
+			'@type': 'Organization',
+			'@id': 'https://sortpedia.com/#organization',
+			name: 'SortPedia',
+			url: 'https://sortpedia.com/',
+			logo: 'https://sortpedia.com/favicon.svg',
+			sameAs: []
+		}
+	]
+});
 </script>
 
 <svelte:head>
@@ -32,7 +32,6 @@
 	<meta property="twitter:title" content="SortPedia - Interactive Sorting Algorithm Visualizer" />
 	<meta property="og:url" content="https://sortpedia.com/" />
 
-	<!-- eslint-disable-next-line svelte/no-at-html-tags -- Safe: static JSON-LD schema -->
 	{@html `<script type="application/ld+json">${schema}<` + '/script>'}
 </svelte:head>
 

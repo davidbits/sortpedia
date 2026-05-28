@@ -4,7 +4,7 @@ export default function* (arr: number[]): Generator<SortEvent> {
 	// Confirmed correct implementation (NB: uses auto-stop optimization)
 	// https://www.geeksforgeeks.org/dsa/bubble-sort-algorithm/
 	const n = arr.length;
-	let swapped;
+	let swapped = false;
 	for (let i = 0; i < n - 1; i++) {
 		swapped = false;
 		for (let j = 0; j < n - i - 1; j++) {

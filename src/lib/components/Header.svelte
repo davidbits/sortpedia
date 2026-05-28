@@ -1,32 +1,32 @@
 <script lang="ts">
-	import { page } from '$app/state';
-	import { resolve } from '$app/paths';
-	import { slide } from 'svelte/transition';
+import { slide } from 'svelte/transition';
+import { resolve } from '$app/paths';
+import { page } from '$app/state';
 
-	const navItems = [
-		['Visualizer', '/visualizer'],
-		['Compare', '/compare'],
-		['Benchmark', '/benchmark'],
-		['Library', '/library'],
-		['About', '/about']
-	] as const;
+const navItems = [
+	['Visualizer', '/visualizer'],
+	['Compare', '/compare'],
+	['Benchmark', '/benchmark'],
+	['Library', '/library'],
+	['About', '/about']
+] as const;
 
-	let isMenuOpen = $state(false);
+let isMenuOpen = $state(false);
 
-	function toggleMenu() {
-		isMenuOpen = !isMenuOpen;
+function toggleMenu() {
+	isMenuOpen = !isMenuOpen;
+}
+
+// Close menu when route changes
+$effect(() => {
+	if (page.url.pathname) {
+		isMenuOpen = false;
 	}
+});
 
-	// Close menu when route changes
-	$effect(() => {
-		if (page.url.pathname) {
-			isMenuOpen = false;
-		}
-	});
-
-	function isActive(path: string) {
-		return page.url.pathname.startsWith(path);
-	}
+function isActive(path: string) {
+	return page.url.pathname.startsWith(path);
+}
 </script>
 
 <header

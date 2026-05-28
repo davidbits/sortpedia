@@ -5,7 +5,9 @@ export default function (ip: number[]): number[] {
 		if (ip.length === 0) return;
 
 		const sublist: number[] = [];
-		sublist.push(ip.shift()!);
+		const first = ip.shift();
+		if (first === undefined) return;
+		sublist.push(first);
 
 		let i = 0;
 		while (i < ip.length) {
@@ -28,7 +30,9 @@ export default function (ip: number[]): number[] {
 			if (t < target.length && target[t] <= source[0]) {
 				t++;
 			} else {
-				target.splice(t, 0, source.shift()!);
+				const next = source.shift();
+				if (next === undefined) break;
+				target.splice(t, 0, next);
 				t++;
 			}
 		}

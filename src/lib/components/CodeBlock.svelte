@@ -1,38 +1,38 @@
 <script lang="ts">
-	import { Check, Copy } from 'lucide-svelte';
+import { Check, Copy } from 'lucide-svelte';
 
-	let {
-		code,
-		language = 'JavaScript',
-		filename = 'code.js'
-	}: { code: string; language?: string; filename?: string } = $props();
+let {
+	code,
+	language = 'JavaScript',
+	filename = 'code.js'
+}: { code: string; language?: string; filename?: string } = $props();
 
-	let copied = $state(false);
-	let timeoutId: number | undefined;
+let copied = $state(false);
+let timeoutId: number | undefined;
 
-	async function copyToClipboard() {
-		if (!navigator.clipboard) {
-			console.error('Clipboard API not available.');
-			return;
-		}
-		try {
-			await navigator.clipboard.writeText(code);
-			copied = true;
-			if (timeoutId) clearTimeout(timeoutId);
-			timeoutId = window.setTimeout(() => {
-				copied = false;
-			}, 2000); // Reset after 2 seconds
-		} catch (err) {
-			console.error('Failed to copy text: ', err);
-		}
+async function copyToClipboard() {
+	if (!navigator.clipboard) {
+		console.error('Clipboard API not available.');
+		return;
 	}
+	try {
+		await navigator.clipboard.writeText(code);
+		copied = true;
+		if (timeoutId) clearTimeout(timeoutId);
+		timeoutId = window.setTimeout(() => {
+			copied = false;
+		}, 2000); // Reset after 2 seconds
+	} catch (err) {
+		console.error('Failed to copy text: ', err);
+	}
+}
 
-	$effect(() => {
-		// Cleanup timeout on component destruction to prevent memory leaks
-		return () => {
-			if (timeoutId) clearTimeout(timeoutId);
-		};
-	});
+$effect(() => {
+	// Cleanup timeout on component destruction to prevent memory leaks
+	return () => {
+		if (timeoutId) clearTimeout(timeoutId);
+	};
+});
 </script>
 
 <div class="group relative overflow-hidden rounded-lg bg-[#1e1e1e] shadow-lg">

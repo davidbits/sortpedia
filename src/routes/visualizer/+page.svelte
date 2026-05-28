@@ -1,66 +1,66 @@
 <script lang="ts">
-	import { algorithms, getAlgorithm } from '$lib/algorithms';
-	import { visualizer } from '$lib/stores/visualizer.svelte';
-	import VisualizerDisplay from '$lib/components/visualizer/VisualizerDisplay.svelte';
-	import TextWithLatex from '$lib/components/TextWithLatex.svelte';
-	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
-	import { page } from '$app/state';
-	import {
-		ChevronLeft,
-		ChevronRight,
-		Pause,
-		Play,
-		RotateCcw,
-		Shuffle,
-		TriangleAlert
-	} from 'lucide-svelte';
+import {
+	ChevronLeft,
+	ChevronRight,
+	Pause,
+	Play,
+	RotateCcw,
+	Shuffle,
+	TriangleAlert
+} from 'lucide-svelte';
+import { onMount } from 'svelte';
+import { goto } from '$app/navigation';
+import { resolve } from '$app/paths';
+import { page } from '$app/state';
+import { algorithms, getAlgorithm } from '$lib/algorithms';
+import TextWithLatex from '$lib/components/TextWithLatex.svelte';
+import VisualizerDisplay from '$lib/components/visualizer/VisualizerDisplay.svelte';
+import { visualizer } from '$lib/stores/visualizer.svelte';
 
-	// Check URL for a pre-selected algorithm, otherwise default to the first one.
-	const urlAlgo = page.url.searchParams.get('algo');
-	const isValidInitialAlgo = urlAlgo && algorithms.some((a) => a.id === urlAlgo);
-	let selectedAlgo = $state(isValidInitialAlgo ? urlAlgo : algorithms[0].id);
+// Check URL for a pre-selected algorithm, otherwise default to the first one.
+const urlAlgo = page.url.searchParams.get('algo');
+const isValidInitialAlgo = urlAlgo && algorithms.some((a) => a.id === urlAlgo);
+let selectedAlgo = $state(isValidInitialAlgo ? urlAlgo : algorithms[0].id);
 
-	// Derived state for descriptions
-	let currentAlgo = $derived(getAlgorithm(selectedAlgo));
+// Derived state for descriptions
+let currentAlgo = $derived(getAlgorithm(selectedAlgo));
 
-	// Effect to sync with URL changes during client-side navigation
-	$effect(() => {
-		const newUrlAlgo = page.url.searchParams.get('algo');
-		if (newUrlAlgo && newUrlAlgo !== selectedAlgo && algorithms.some((a) => a.id === newUrlAlgo)) {
-			selectedAlgo = newUrlAlgo;
-			visualizer.reset(); // Reset the visualizer when the algorithm changes
-		}
-	});
+// Effect to sync with URL changes during client-side navigation
+$effect(() => {
+	const newUrlAlgo = page.url.searchParams.get('algo');
+	if (newUrlAlgo && newUrlAlgo !== selectedAlgo && algorithms.some((a) => a.id === newUrlAlgo)) {
+		selectedAlgo = newUrlAlgo;
+		visualizer.reset(); // Reset the visualizer when the algorithm changes
+	}
+});
 
-	const handleAlgoChange = () => {
-		visualizer.reset();
-		goto(resolve(`/visualizer?algo=${selectedAlgo}`), { replaceState: true, keepFocus: true });
-	};
+const handleAlgoChange = () => {
+	visualizer.reset();
+	goto(resolve(`/visualizer?algo=${selectedAlgo}`), { replaceState: true, keepFocus: true });
+};
 
-	// Warning Logic
-	let warningMessage = $derived.by(() => {
-		if (currentAlgo?.warningThreshold && visualizer.targetSize > currentAlgo.warningThreshold) {
-			return `Warning: ${currentAlgo.name} is extremely inefficient. Running with ${visualizer.targetSize} elements may freeze your browser or take a very long time. Recommended limit: ${currentAlgo.warningThreshold}.`;
-		}
-		return null;
-	});
+// Warning Logic
+let warningMessage = $derived.by(() => {
+	if (currentAlgo?.warningThreshold && visualizer.targetSize > currentAlgo.warningThreshold) {
+		return `Warning: ${currentAlgo.name} is extremely inefficient. Running with ${visualizer.targetSize} elements may freeze your browser or take a very long time. Recommended limit: ${currentAlgo.warningThreshold}.`;
+	}
+	return null;
+});
 
-	// Effects to sync inputs with store
-	const handleSizeChange = (e: Event) => {
-		const size = +(e.target as HTMLInputElement).value;
-		visualizer.generateArray(size);
-	};
+// Effects to sync inputs with store
+const handleSizeChange = (e: Event) => {
+	const size = +(e.target as HTMLInputElement).value;
+	visualizer.generateArray(size);
+};
 
-	const handleSort = () => {
-		visualizer.runAlgorithm(selectedAlgo);
-	};
+const handleSort = () => {
+	visualizer.runAlgorithm(selectedAlgo);
+};
 
-	onMount(() => {
-		// Ensure initial array exists
-		if (visualizer.array.length === 0) visualizer.generateArray(50);
-	});
+onMount(() => {
+	// Ensure initial array exists
+	if (visualizer.array.length === 0) visualizer.generateArray(50);
+});
 </script>
 
 <svelte:head>

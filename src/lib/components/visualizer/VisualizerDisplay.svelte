@@ -1,11 +1,11 @@
 <script lang="ts">
-	import type { VisualizerEngine } from '$lib/stores/visualizer.svelte';
+import type { VisualizerEngine } from '$lib/stores/visualizer.svelte';
 
-	interface Props {
-		engine: VisualizerEngine;
-	}
+interface Props {
+	engine: VisualizerEngine;
+}
 
-	let { engine }: Props = $props();
+let { engine }: Props = $props();
 </script>
 
 <div class="relative flex h-full w-full flex-col overflow-hidden">

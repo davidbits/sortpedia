@@ -233,6 +233,7 @@ export class QuantumRegister {
  * Uses a single-qubit quantum system to generate true randomness
  * (simulated) by measuring a superposition state.
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: Namespace-style API keeps call sites readable.
 export class QuantumEntropySource {
 	/**
 	 * @brief Generates a random boolean using quantum superposition.

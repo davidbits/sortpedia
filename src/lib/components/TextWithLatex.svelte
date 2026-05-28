@@ -1,12 +1,12 @@
 <script lang="ts">
-	import Latex from '$lib/components/Latex.svelte';
+import Latex from '$lib/components/Latex.svelte';
 
-	let { text = '' }: { text?: string } = $props();
+let { text = '' }: { text?: string } = $props();
 
-	// 1. Tokenize the string by splitting on Markdown containers (bold, code).
-	// The capturing group in split() keeps the delimiters in the resulting array.
-	// We filter out empty strings that can result from the split.
-	const segments = $derived(text.split(/(\*\*.*?\*\*|`.*?`)/g).filter(Boolean));
+// 1. Tokenize the string by splitting on Markdown containers (bold, code).
+// The capturing group in split() keeps the delimiters in the resulting array.
+// We filter out empty strings that can result from the split.
+const segments = $derived(text.split(/(\*\*.*?\*\*|`.*?`)/g).filter(Boolean));
 </script>
 
 {#each segments as segment, i (i)}

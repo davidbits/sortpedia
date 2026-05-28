@@ -1,86 +1,86 @@
 <script lang="ts">
-	import { page } from '$app/state';
-	import {
-		adaptiveExplanation,
-		categoryExplanations,
-		getAlgorithm,
-		inPlaceExplanation,
-		stableExplanation,
-		unstableExplanation
-	} from '$lib/algorithms';
-	import { resolve } from '$app/paths';
-	import { VisualizerEngine } from '$lib/stores/visualizer.svelte';
-	import VisualizerDisplay from '$lib/components/visualizer/VisualizerDisplay.svelte';
-	import { untrack } from 'svelte';
-	import Latex from '$lib/components/Latex.svelte';
-	import CodeBlock from '$lib/components/CodeBlock.svelte';
-	import TextWithLatex from '$lib/components/TextWithLatex.svelte';
-	import { CirclePlay, Pause, Play, RotateCcw, Shuffle } from 'lucide-svelte';
+import { CirclePlay, Pause, Play, RotateCcw, Shuffle } from 'lucide-svelte';
+import { untrack } from 'svelte';
+import { resolve } from '$app/paths';
+import { page } from '$app/state';
+import {
+	adaptiveExplanation,
+	categoryExplanations,
+	getAlgorithm,
+	inPlaceExplanation,
+	stableExplanation,
+	unstableExplanation
+} from '$lib/algorithms';
+import CodeBlock from '$lib/components/CodeBlock.svelte';
+import Latex from '$lib/components/Latex.svelte';
+import TextWithLatex from '$lib/components/TextWithLatex.svelte';
+import VisualizerDisplay from '$lib/components/visualizer/VisualizerDisplay.svelte';
+import { VisualizerEngine } from '$lib/stores/visualizer.svelte';
 
-	let algoId = $derived(page.params.id ?? '');
-	let algorithm = $derived(getAlgorithm(algoId));
+let algoId = $derived(page.params.id ?? '');
+let algorithm = $derived(getAlgorithm(algoId));
 
-	// Helper for SEO description
-	let seoDescription = $derived(
-		algorithm
-			? `${algorithm.name}: ${algorithm.details.summary.replace(/`/g, '').slice(0, 150)}...`
-			: 'Detailed explanation and visualization of this sorting algorithm.'
-	);
+// Helper for SEO description
+let seoDescription = $derived(
+	algorithm
+		? `${algorithm.name}: ${algorithm.details.summary.replace(/`/g, '').slice(0, 150)}...`
+		: 'Detailed explanation and visualization of this sorting algorithm.'
+);
 
-	let schemaJson = $derived(
-		JSON.stringify({
-			'@context': 'https://schema.org',
-			'@type': 'TechArticle',
-			headline: algorithm ? `${algorithm.name} Algorithm Explained` : 'Sorting Algorithm',
-			description: algorithm
-				? algorithm.details.summary
-				: 'Detailed explanation of a sorting algorithm.',
-			articleSection: 'Computer Science',
-			keywords: algorithm
-				? `${algorithm.name}, sorting algorithm, ${algorithm.complexity.average} complexity`
-				: 'sorting',
-			author: {
-				'@type': 'Organization',
-				name: 'SortPedia'
-			},
-			about: {
-				'@type': 'Thing',
-				name: algorithm?.name,
-				description: algorithm?.details.summary
-			}
-		})
-	);
-
-	let jsonLdScript = $derived(`<script type="application/ld+json">${schemaJson}<` + `/script>`);
-
-	// Check if the algorithm is considered dangerous by comparing its ID against a predefined list.
-	let isDangerAlgo = $derived(() => {
-		const dangerousAlgorithms = ['bogo-sort', 'bogobogo-sort', 'stooge-sort', 'bozo-sort'];
-		return algorithm ? dangerousAlgorithms.includes(algorithm.id) : false;
-	});
-
-	let DEMO_SIZE = $derived(isDangerAlgo() ? 5 : 20);
-	let DEMO_SPEED = 4;
-	const demoEngine = new VisualizerEngine(0);
-
-	// Reset demo when algorithm or size changes
-	$effect(() => {
-		if (algorithm) {
-			// Wrap internal state reads in untrack() to prevent infinite loops.
-			// This tells Svelte: "Execute this, but don't track any state read inside as a dependency."
-			untrack(() => {
-				demoEngine.resetPlayback();
-				demoEngine.generateArray(DEMO_SIZE);
-			});
+let schemaJson = $derived(
+	JSON.stringify({
+		'@context': 'https://schema.org',
+		'@type': 'TechArticle',
+		headline: algorithm ? `${algorithm.name} Algorithm Explained` : 'Sorting Algorithm',
+		description: algorithm
+			? algorithm.details.summary
+			: 'Detailed explanation of a sorting algorithm.',
+		articleSection: 'Computer Science',
+		keywords: algorithm
+			? `${algorithm.name}, sorting algorithm, ${algorithm.complexity.average} complexity`
+			: 'sorting',
+		author: {
+			'@type': 'Organization',
+			name: 'SortPedia'
+		},
+		about: {
+			'@type': 'Thing',
+			name: algorithm?.name,
+			description: algorithm?.details.summary
 		}
-	});
+	})
+);
 
-	function runDemo() {
-		if (algorithm) {
-			demoEngine.speed = DEMO_SPEED;
-			demoEngine.runAlgorithm(algorithm.id);
-		}
+let jsonLdScript = $derived(`<script type="application/ld+json">${schemaJson}<` + `/script>`);
+
+// Check if the algorithm is considered dangerous by comparing its ID against a predefined list.
+let isDangerAlgo = $derived(() => {
+	const dangerousAlgorithms = ['bogo-sort', 'bogobogo-sort', 'stooge-sort', 'bozo-sort'];
+	return algorithm ? dangerousAlgorithms.includes(algorithm.id) : false;
+});
+
+let DEMO_SIZE = $derived(isDangerAlgo() ? 5 : 20);
+let DEMO_SPEED = 4;
+const demoEngine = new VisualizerEngine(0);
+
+// Reset demo when algorithm or size changes
+$effect(() => {
+	if (algorithm) {
+		// Wrap internal state reads in untrack() to prevent infinite loops.
+		// This tells Svelte: "Execute this, but don't track any state read inside as a dependency."
+		untrack(() => {
+			demoEngine.resetPlayback();
+			demoEngine.generateArray(DEMO_SIZE);
+		});
 	}
+});
+
+function runDemo() {
+	if (algorithm) {
+		demoEngine.speed = DEMO_SPEED;
+		demoEngine.runAlgorithm(algorithm.id);
+	}
+}
 </script>
 
 <svelte:head>
@@ -108,7 +108,6 @@
 	/>
 	<meta property="twitter:description" content={seoDescription} />
 
-	<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 	{@html jsonLdScript}
 </svelte:head>
 
@@ -270,12 +269,10 @@
 			<!--Sidebar / Mini Visualizer -->
 			<div class="lg:col-span-1 lg:col-start-3">
 				<div class="sticky top-24 space-y-6">
-					<!-- eslint-disable svelte/no-navigation-without-resolve -->
 					<a
 						href={`/visualizer?algo=${algorithm.id}`}
 						class="bg-primary hover:bg-primary-dark focus:ring-primary/50 flex w-full items-center justify-center gap-2.5 rounded-lg py-3 font-bold text-white shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-2"
 					>
-						<!-- eslint-enable svelte/no-navigation-without-resolve -->
 						<CirclePlay size={20} />
 						Visualize Fullscreen
 					</a>

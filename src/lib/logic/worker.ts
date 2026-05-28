@@ -30,5 +30,3 @@ self.onmessage = async (e: MessageEvent<SortWorkerRequest>) => {
 		// self.postMessage({ error: `Algorithm ${algorithm} failed.` });
 	}
 };
-
-export {};

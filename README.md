@@ -61,16 +61,15 @@ Each is visualized with detailed explanations of its properties. See the full li
 
 ### Prerequisites
 
-- Node.js 20+
-- pnpm (recommended)
+- Bun 1.3+
 
 ### Installation
 
 ```bash
 git clone https://github.com/astraen-dev/sortpedia.git
 cd sortpedia
-pnpm install
-pnpm dev --open
+bun install
+bun dev --open
 ```
 
 ## Contributing

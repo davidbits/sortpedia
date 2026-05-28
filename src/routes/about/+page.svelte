@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
-	import TextWithLatex from '$lib/components/TextWithLatex.svelte';
-	import { Eye, Swords, Timer, BookOpen, Cpu, Network, FileCode } from 'lucide-svelte';
+import { BookOpen, Cpu, Eye, FileCode, Network, Swords, Timer } from 'lucide-svelte';
+import { resolve } from '$app/paths';
+import TextWithLatex from '$lib/components/TextWithLatex.svelte';
 </script>
 
 <svelte:head>
