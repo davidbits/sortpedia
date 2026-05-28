@@ -15,12 +15,14 @@ import { page } from '$app/state';
 import { algorithms, getAlgorithm } from '$lib/algorithms';
 import TextWithLatex from '$lib/components/TextWithLatex.svelte';
 import VisualizerDisplay from '$lib/components/visualizer/VisualizerDisplay.svelte';
+import { hasEmbedMode } from '$lib/embed';
 import { visualizer } from '$lib/stores/visualizer.svelte';
 
 // Check URL for a pre-selected algorithm, otherwise default to the first one.
 const urlAlgo = page.url.searchParams.get('algo');
 const isValidInitialAlgo = urlAlgo && algorithms.some((a) => a.id === urlAlgo);
 let selectedAlgo = $state(isValidInitialAlgo ? urlAlgo : algorithms[0].id);
+let isEmbedMode = $derived(hasEmbedMode(page.url.searchParams));
 
 // Derived state for descriptions
 let currentAlgo = $derived(getAlgorithm(selectedAlgo));
@@ -36,7 +38,9 @@ $effect(() => {
 
 const handleAlgoChange = () => {
 	visualizer.reset();
-	goto(resolve(`/visualizer?algo=${selectedAlgo}`), { replaceState: true, keepFocus: true });
+	const searchParams = new URLSearchParams(page.url.searchParams);
+	searchParams.set('algo', selectedAlgo);
+	goto(resolve(`/visualizer?${searchParams.toString()}`), { replaceState: true, keepFocus: true });
 };
 
 // Warning Logic
@@ -82,10 +86,16 @@ onMount(() => {
 	/>
 </svelte:head>
 
-<div class="grid min-h-[600px] grid-cols-1 gap-6 lg:grid-cols-4">
+<div
+	class="grid w-full grid-cols-1 lg:grid-cols-4 {isEmbedMode
+		? 'h-full gap-3 overflow-auto'
+		: 'min-h-[600px] gap-6'}"
+>
 	<!-- Canvas Area -->
 	<div
-		class="bg-surface-100 border-surface-200 relative flex min-h-[400px] flex-col items-center justify-center overflow-hidden rounded-xl border p-8 shadow-inner lg:col-span-3"
+		class="bg-surface-100 border-surface-200 relative flex flex-col items-center justify-center overflow-hidden rounded-xl border shadow-inner lg:col-span-3 {isEmbedMode
+			? 'min-h-[260px] p-4 lg:min-h-0 lg:p-6'
+			: 'min-h-[400px] p-8'}"
 	>
 		<!-- Step Description Label -->
 		<div
@@ -107,7 +117,11 @@ onMount(() => {
 	</div>
 
 	<!-- Controls Panel -->
-	<div class="bg-surface-50 border-surface-200 flex flex-col gap-6 rounded-xl border p-6 shadow-sm">
+	<div
+		class="bg-surface-50 border-surface-200 flex flex-col rounded-xl border shadow-sm {isEmbedMode
+			? 'gap-4 p-4'
+			: 'gap-6 p-6'}"
+	>
 		<!-- Statistics Dashboard -->
 		<div class="bg-white rounded-lg border border-surface-200 p-4 shadow-sm">
 			<h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Statistics</h3>
@@ -142,7 +156,7 @@ onMount(() => {
 			</div>
 		</div>
 
-		<h2 class="text-xl font-bold">Controls</h2>
+		<h2 class="{isEmbedMode ? 'text-lg' : 'text-xl'} font-bold">Controls</h2>
 
 		<div class="flex flex-col gap-2">
 			<label for="algo-select" class="text-sm font-medium">Algorithm</label>
@@ -272,7 +286,7 @@ onMount(() => {
 	</div>
 </div>
 
-{#if currentAlgo}
+{#if currentAlgo && !isEmbedMode}
 	<div
 		class="bg-surface-50 border-surface-200 mt-8 grid gap-8 rounded-xl border p-6 md:grid-cols-2"
 	>
